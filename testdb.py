@@ -9,8 +9,10 @@ import sys
 #star_rating
 #vine
 #cat_text = 'verified_purchase'
-cat_text = 'vine'
-db_name = "amazon_reviews_us_Books_v1_02.tsv" 
+cat_text = sys.argv[1] #category we want to extract
+db_name = sys.argv[2] #get the db name for it
+#cat_text = 'vine'
+#db_name = "amazon_reviews_us_Books_v1_02.tsv" 
 
 
 def establishMongoDB():
@@ -36,10 +38,14 @@ def fetch_db(text):
 	fetch_db = db[text].find()
 	return fetch_db
 
- 	
-print ("This is the name of the script: " + sys.argv[0])
-print ("Number of arguments: " +  len(sys.argv))
-print ("The arguments are: " + str(sys.argv))
+
+#Debug code for args 	
+#print ("This is the name of the script: " + sys.argv[0])
+#print ("Number of arguments: " +  str(sys.argv))
+#print ("The arguments are: " + str(sys.argv))
+
+
+
 client = establishMongoDB()
 db = client.amazon
 #collection = fetch_db('sample') #STG
