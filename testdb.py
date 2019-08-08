@@ -3,6 +3,7 @@
 from pymongo import MongoClient
 from textblob import TextBlob
 import pandas as pd
+import sys
 #import dask.dataframe as pd
 
 #star_rating
@@ -36,7 +37,9 @@ def fetch_db(text):
 	return fetch_db
 
  	
-
+print ("This is the name of the script: " + sys.argv[0])
+print ("Number of arguments: " +  len(sys.argv))
+print ("The arguments are: " + str(sys.argv))
 client = establishMongoDB()
 db = client.amazon
 #collection = fetch_db('sample') #STG
