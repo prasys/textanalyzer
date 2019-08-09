@@ -21,16 +21,20 @@ def establishMongoDB():
 
 
 def sentiment_calc_polarity(text):
+	score = TextBlob(text).sentiment.polarity
 	try:
+		if score > 0.5:
+			print text
 		#print (TextBlob(text).sentiment.polarity)
-		return TextBlob(text).sentiment.polarity
+		return score
 	except:
 		return None
 
 def sentiment_calc_subjectivity(text):
+	score = TextBlob(text).sentiment.subjectivity
 	try:
 		#print (TextBlob(text).sentiment.subjectivity)
-		return TextBlob(text).sentiment.subjectivity
+		return score
 	except:
 		return None
 
