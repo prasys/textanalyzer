@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from textblob import TextBlob
 import pandas as pd
 import sys
+#from odo import odo
 #import dask.dataframe as pd
 
 #star_rating
@@ -21,21 +22,24 @@ def establishMongoDB():
 
 
 def sentiment_calc_polarity(text):
-	score = TextBlob(text).sentiment.polarity
+	#score = TextBlob(text).sentiment.polarity
 	try:
-		if score > 0.5:
-			print text
+		#if score > 0.4:
+			#print (text)
+		#if "delivery" in text:
+		#	print ("[DELIVERY DETECTED] " + text)
 		#print (TextBlob(text).sentiment.polarity)
-		return score
+		return TextBlob(text).sentiment.polarity
 	except:
 		return None
 
 def sentiment_calc_subjectivity(text):
-	score = TextBlob(text).sentiment.subjectivity
+	#score = TextBlob(text).sentiment.subjectivity
 	try:
 		#print (TextBlob(text).sentiment.subjectivity)
-		return score
+		return TextBlob(text).sentiment.subjectivity
 	except:
+		0
 		return None
 
 def fetch_db(text):
@@ -52,6 +56,7 @@ def fetch_db(text):
 
 client = establishMongoDB()
 db = client.amazon
+col = client['amazon_o'][db_name]
 #collection = fetch_db('sample') #STG
 collection = fetch_db(db_name)
 df = pd.DataFrame(list(collection))
@@ -75,17 +80,28 @@ group1 = df.groupby(cat_text)['review_body'].apply(lambda x: x.str.split().str.l
 print(group1)
 group1 = df.groupby(cat_text)['review_body'].apply(lambda x: x.str.split().str.len().std())
 print(group1)
+group1 = df.groupby(cat_text)['review_body'].apply(lambda x: x.str.split().str.len().sum()) # Calculate the Total Number of Words
+print(group1)
 print ("Calculating Polarity")
 df['polarity'] = df['review_body'].apply(sentiment_calc_polarity)
+
 print ("Calculating Subjectivity")
 df['subjectivity'] = df['review_body'].apply(sentiment_calc_subjectivity)
+data = df.to_dict(orient='records')
+
+col.insert_many(data)
+
+#odo(df,db[colle])
+
 
 
 
 for group_name, df_group in grouped:
-	print("Star Rating " + str(group_name))
+	print(cat_text + " " + str(group_name))
 	#print("Total No of Reviews" + str(df_group['review_body'].count()))
 	#df_group['test'] = df_group['review_body'].apply(sentiment_calc_polarity)
+	#peek = df_group['review_body'].str.extract()
+	#print(peek)
 	avg_pol = df_group['polarity'].mean()
 	stv_pol = df_group['polarity'].std()
 	avg_sub = df_group['subjectivity'].mean()
