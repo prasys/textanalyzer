@@ -7,6 +7,8 @@ import sys
 import textstat
 import numpy as numpy
 import math
+import dask
+import dask.dataframe as dd
 
 #from odo import odo
 #import dask.dataframe as pd
@@ -33,15 +35,15 @@ def read_csv(filepath):
                  'product_parent': 'uint32',
                  'product_title' : 'str',
                  'product_category' : 'category',
-                 'star_rating' : 'uint8',
-                 'helpful_votes' : 'uint8',
-                 'total_votes' : 'uint8',
+                 'star_rating' : 'uint16',
+                 'helpful_votes' : 'uint16',
+                 'total_votes' : 'uint16',
                  'vine' : 'category',
                  'verified_purchase' : 'category',
                  'review_headline' : 'str',
                  'review_body' : 'str',}
-	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes)
-	df_chuck = df_chuck.fillna(0)
+	df_chunk = dd.read_csv(filepath, sep='\t', header=0, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes)
+	#df_chuck = df_chuck.fillna(0)
 	return df_chunk
 
 

@@ -33,15 +33,15 @@ def read_csv(filepath):
                  'product_parent': 'uint32',
                  'product_title' : 'str',
                  'product_category' : 'category',
-                 'star_rating' : 'uint8',
-                 'helpful_votes' : 'uint8',
-                 'total_votes' : 'uint8',
+                 'star_rating' : 'Int64',
+                 'helpful_votes' : 'Int64',
+                 'total_votes' : 'Int64',
                  'vine' : 'category',
                  'verified_purchase' : 'category',
                  'review_headline' : 'str',
                  'review_body' : 'str',}
 	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes)
-	df_chuck = df_chuck.fillna(0)
+	#df_chuck = df_chuck.fillna(0)
 	return df_chunk
 
 
@@ -125,12 +125,17 @@ else:
 		print("CONVERTING THEM")
 		#chunk['star_rating'] = 
 		#hunk['review_date'] = pd.to_datetime(chunk['review_date'])
-		chunk['year'] = chunk['review_date'].dt.year
+	#	chunk['year'] = chunk['review_date'].dt.year
 		print("APPLYING READABILITY SCORE")
 		chunk['readscore'] = chunk['review_body'].apply(test)
+		print("APPLYING POLARITY SCORE")
+		chunk['polarity'] = chunk['review_body'].apply(test)
 		chunk_list.append(chunk)
 	df = pd.concat(chunk_list)
-	print(df.head())
+
+	name = db_name + ".gzip"
+	df.to_parquet(name,compression='gzip')
+	#print(df.head())
 
 	#print(df.dtypes())
 
@@ -169,9 +174,9 @@ else:
 #df['subjectivity'] = df['review_body'].apply(sentiment_calc_subjectivity)
 
 
-data = df.to_dict(orient='records')
+#data = df.to_dict(orient='records')
 
-col.insert_many(data)
+#col.insert_many(data)
 
 #odo(df,db[colle])
 
