@@ -7,6 +7,7 @@ import sys
 import textstat
 import numpy as numpy
 import math
+import pickle
 
 #from odo import odo
 #import dask.dataframe as pd
@@ -129,13 +130,14 @@ else:
 		print("APPLYING READABILITY SCORE")
 		chunk['readscore'] = chunk['review_body'].apply(test)
 		print("APPLYING POLARITY SCORE")
-		chunk['polarity'] = chunk['review_body'].apply(test)
+		chunk['polarity'] = chunk['review_body'].apply(sentiment_calc_polarity)
 		chunk_list.append(chunk)
 	df = pd.concat(chunk_list)
 
-	name = db_name + ".gzip"
-	df.to_parquet(name,compression='gzip')
-	#print(df.head())
+	name = db_name + ".pickle"
+	#df.to_parquet(name,compression='gzip')
+	df.to_pickle(name)
+	print(df.head())
 
 	#print(df.dtypes())
 

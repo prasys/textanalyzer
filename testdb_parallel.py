@@ -123,16 +123,18 @@ if isMongo == True:
 	#print(df.head())
 else:
 	df_chunk = read_csv(db_name) # read our CSV file location - needs to be absolute file path. To be tested it out
-	for chunk in df_chunk:
-		print("CONVERTING THEM")
+	#for chunk in df_chunk:
+	print("CONVERTING THEM")
 		#chunk['star_rating'] = 
 		#hunk['review_date'] = pd.to_datetime(chunk['review_date'])
-		chunk['year'] = chunk['review_date'].dt.year
-		print("APPLYING READABILITY SCORE")
-		chunk['readscore'] = chunk['review_body'].apply(test)
-		chunk_list.append(chunk)
-	df = pd.concat(chunk_list)
-	print(df.head())
+	#df_chunk['year'] = df_chunk['review_date'].dt.year
+	print("APPLYING READABILITY SCORE")
+	df_chunk['readscore'] = df_chunk['review_body'].apply(test,meta=('review_body','float16'))
+	print("APPLYING POLARITY SCORE")
+	df_chunk['polarity'] = df_chunk['review_body'].apply(sentiment_calc_polarity, meta=('review_body','float16'))
+	#chunk_list.append(chunk)
+	#df = pd.concat(chunk_list)
+	print(df_chunk.head())
 
 	#print(df.dtypes())
 
@@ -171,9 +173,9 @@ else:
 #df['subjectivity'] = df['review_body'].apply(sentiment_calc_subjectivity)
 
 
-data = df.to_dict(orient='records')
+#data = df.to_dict(orient='records')
 
-col.insert_many(data)
+#col.insert_many(data)
 
 #odo(df,db[colle])
 
