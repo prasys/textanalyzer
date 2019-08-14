@@ -7,9 +7,10 @@ import sys
 import textstat
 import numpy as numpy
 import math
+from nltk.corpus import stopwords
 import dask
 import dask.dataframe as dd
-
+import gensim, os, re, pymongo, itertools, nltk, snowballstemmer
 #from odo import odo
 #import dask.dataframe as pd
 
@@ -24,6 +25,16 @@ size = 500000
 chunk_list = []  # append each chunk df here 
 #cat_text = 'vine'
 #db_name = "amazon_reviews_us_Books_v1_02.tsv"
+
+
+def stemit():
+	stemmer = snowballstemmer.EnglishStemmer()
+	stop = stopwords.words('english')
+	stop.extend(['may','also','zero','one','two','three','four','five','six','seven','eight','nine','ten','across','among','beside','however','yet','within']+list(ascii_lowercase))
+	stoplist = stemmer.stemWords(stop)
+	stoplist = set(stoplist)
+	stop = set(sorted(stop + list(stoplist))) 
+	return stop
 
 
 def read_csv(filepath):
@@ -52,7 +63,7 @@ def establishMongoDB():
 	client = MongoClient('mongodb://localhost:27017/')
 	return clientb
 
-
+@dask.delayed
 def sentiment_calc_polarity(text):
 	#score = TextBlob(text).sentiment.polarity
 	try:
@@ -78,6 +89,7 @@ def fetch_db(text):
 	fetch_db = db[text].find()
 	return fetch_db
 
+@dask.delayed
 def test(text):
 	#print (text)
 	score = textstat.automated_readability_index((str (text)))
@@ -127,15 +139,18 @@ else:
 	print("CONVERTING THEM")
 		#chunk['star_rating'] = 
 		#hunk['review_date'] = pd.to_datetime(chunk['review_date'])
-	#df_chunk['year'] = df_chunk['review_date'].dt.year
+	#df_chunk['year'] = df_chunk['review_date'].dt.year 
+	df_chunk['review_body'].replace('[!"#%\'()*+,-./:;<=>?@\[\]^_`{|}~1234567890’”“′‘\\\]',' ',inplace=True,regex=True) # removes invalid character
+	wordlist = filter(None, " ".join(list(set(list(itertools.chain(*data['text_data'].str.split(' ')))))).split(" "))
 	print("APPLYING READABILITY SCORE")
 	df_chunk['readscore'] = df_chunk['review_body'].apply(test,meta=('review_body','float16'))
 	print("APPLYING POLARITY SCORE")
-	df_chunk['polarity'] = df_chunk['review_body'].apply(sentiment_calc_polarity, meta=('review_body','float16'))
-	#chunk_list.append(chunk)
-	#df = pd.concat(chunk_list)
-	print(df_chunk.head())
-
+	#df_chunk['polarity'] = df_chunk['review_body'].apply(sentiment_calc_polarity, meta=('review_body','float16'))
+	chunk_list.append(chunk)
+	df = pd.concat(chunk_list)
+	#print(df_chunk.head())
+	name = db_name + ".parquet"
+	df.to_parquet('name')
 	#print(df.dtypes())
 
 

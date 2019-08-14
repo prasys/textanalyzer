@@ -8,6 +8,12 @@ import textstat
 import numpy as numpy
 import math
 import pickle
+import gensim
+from gensim import corpora
+from pprint import pprint
+from nltk.corpus import stopwords
+from string import ascii_lowercase
+import gensim, os, re, pymongo, itertools, nltk, snowballstemmer
 
 #from odo import odo
 #import dask.dataframe as pd
@@ -23,6 +29,16 @@ size = 500000
 chunk_list = []  # append each chunk df here 
 #cat_text = 'vine'
 #db_name = "amazon_reviews_us_Books_v1_02.tsv"
+
+
+def stemit():
+	stemmer = snowballstemmer.EnglishStemmer()
+	stop = stopwords.words('english')
+	stop.extend(['may','also','zero','one','two','three','four','five','six','seven','eight','nine','ten','across','among','beside','however','yet','within']+list(ascii_lowercase))
+	stoplist = stemmer.stemWords(stop)
+	stoplist = set(stoplist)
+	stop = set(sorted(stop + list(stoplist))) 
+	return stop
 
 
 def read_csv(filepath):
@@ -127,16 +143,24 @@ else:
 		#chunk['star_rating'] = 
 		#hunk['review_date'] = pd.to_datetime(chunk['review_date'])
 	#	chunk['year'] = chunk['review_date'].dt.year
+		stop = stemit()
+		print("REMOVE INVALID CHARACTER")
+		chunk['review_body'].replace('[!"#%\'()*+,-./:;<=>?@\[\]^_`{|}~1234567890’”“′‘\\\]',' ',inplace=True,regex=True) # removes invalid character
+		wordlist = filter(None, " ".join(list(set(list(itertools.chain(*chunk['review_body'].str.split(' ')))))).split(" "))
+		chunk['stemmed_text_data'] = [' '.join(filter(None,filter(lambda word: word not in stop, line))) for line in chunk['review_body'].str.lower().str.split(' ')]
+		wholething = chunk['stemmed_text_data'].tolist()
 		print("APPLYING READABILITY SCORE")
 		chunk['readscore'] = chunk['review_body'].apply(test)
-		print("APPLYING POLARITY SCORE")
-		chunk['polarity'] = chunk['review_body'].apply(sentiment_calc_polarity)
+		#print("APPLYING POLARITY SCORE")
+		#chunk['polarity'] = chunk['review_body'].apply(sentiment_calc_polarity)
 		chunk_list.append(chunk)
 	df = pd.concat(chunk_list)
 
-	name = db_name + ".pickle"
+	#name = db_name + ".pickle"
+	name1 = db_name + ".csv"
 	#df.to_parquet(name,compression='gzip')
-	df.to_pickle(name)
+	#df.to_pickle(name)
+	df.to_csv(name1)
 	print(df.head())
 
 	#print(df.dtypes())
