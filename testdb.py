@@ -14,6 +14,9 @@ from pprint import pprint
 from nltk.corpus import stopwords
 from string import ascii_lowercase
 import gensim, os, re, pymongo, itertools, nltk, snowballstemmer
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from pandarallel import pandarallel
+
 
 #from odo import odo
 #import dask.dataframe as pd
@@ -27,6 +30,8 @@ flag_calc_scores = False
 isMongo = False
 size = 500000
 chunk_list = []  # append each chunk df here 
+analyser = SentimentIntensityAnalyzer()
+pandarallel.initialize(progress_bar=True)
 #cat_text = 'vine'
 #db_name = "amazon_reviews_us_Books_v1_02.tsv"
 
@@ -40,9 +45,17 @@ def stemit():
 	stop = set(sorted(stop + list(stoplist))) 
 	return stop
 
+def sentiment_analyzer_scores(sentence):
+    score = analyser.polarity_scores(sentence)
+    #print(score["compound"])
+    return score
+    #print("{:-<40} {}".format(sentence, str(score)))
+
 
 def read_csv(filepath):
-	parseDate = ['review_date']
+	#parseDate = ['review_date']
+	#dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
+	colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
 	column_dtypes = {'marketplace': 'category',
                  'customer_id': 'uint32',
                  'review_id': 'str',
@@ -54,10 +67,12 @@ def read_csv(filepath):
                  'helpful_votes' : 'Int64',
                  'total_votes' : 'Int64',
                  'vine' : 'category',
+                 'review_date' : 'str',
                  'verified_purchase' : 'category',
                  'review_headline' : 'str',
-                 'review_body' : 'str',}
-	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes)
+                 'review_body' : 'str'}
+	#df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
+	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False, dtype=column_dtypes, usecols=colName)
 	#df_chuck = df_chuck.fillna(0)
 	return df_chunk
 
@@ -140,21 +155,33 @@ else:
 	df_chunk = read_csv(db_name) # read our CSV file location - needs to be absolute file path. To be tested it out
 	for chunk in df_chunk:
 		print("CONVERTING THEM")
+
 		#chunk['star_rating'] = 
 		#hunk['review_date'] = pd.to_datetime(chunk['review_date'])
 	#	chunk['year'] = chunk['review_date'].dt.year
 		stop = stemit()
+		#print(chunk.dtypes)
 		print("REMOVE INVALID CHARACTER")
-		chunk['review_body'].replace('[!"#%\'()*+,-./:;<=>?@\[\]^_`{|}~1234567890’”“′‘\\\]',' ',inplace=True,regex=True) # removes invalid character
+		#chunk['review_body'].replace('[!"#%\'()*+,-./:;<=>?@\[\]^_`{|}~1234567890’”“′‘\\\]',' ',inplace=True,regex=True) # removes invalid character
+		chunk['review_body'] = chunk['review_body'].astype(str)
 		wordlist = filter(None, " ".join(list(set(list(itertools.chain(*chunk['review_body'].str.split(' ')))))).split(" "))
 		chunk['stemmed_text_data'] = [' '.join(filter(None,filter(lambda word: word not in stop, line))) for line in chunk['review_body'].str.lower().str.split(' ')]
-		wholething = chunk['stemmed_text_data'].tolist()
+		#wholething = chunk['stemmed_text_data'].tolist()
 		print("APPLYING READABILITY SCORE")
-		chunk['readscore'] = chunk['review_body'].apply(test)
+		chunk['readscore'] = chunk['stemmed_text_data'].parallel_apply(test)
+		print("APPLYING SENTIMENT SCORE")
+		chunk['sentiment'] = chunk['stemmed_text_data'].parallel_apply(sentiment_analyzer_scores)
+		df_r = chunk['sentiment'].parallel_apply(pd.Series)
+		chunk = pd.concat([chunk,df_r], axis=1).drop('sentiment',axis=1) #drops the sentiment score
+		chunk = chunk.drop('review_body', axis=1)
+		chunk = chunk.drop('stemmed_text_data', axis=1)
+		#print(df_r.head())
+
 		#print("APPLYING POLARITY SCORE")
 		#chunk['polarity'] = chunk['review_body'].apply(sentiment_calc_polarity)
 		chunk_list.append(chunk)
 	df = pd.concat(chunk_list)
+
 
 	#name = db_name + ".pickle"
 	name1 = db_name + ".csv"
