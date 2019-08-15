@@ -28,7 +28,7 @@ cat_text = sys.argv[1] #category we want to extract
 db_name = sys.argv[2] #get the db name for it
 flag_calc_scores = False
 isMongo = False
-size = 500000
+size = 200000
 chunk_list = []  # append each chunk df here 
 analyser = SentimentIntensityAnalyzer()
 pandarallel.initialize(progress_bar=True)
@@ -53,7 +53,7 @@ def sentiment_analyzer_scores(sentence):
 
 
 def read_csv(filepath):
-	#parseDate = ['review_date']
+	parseDate = ['review_date']
 	#dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
 	colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
 	column_dtypes = {'marketplace': 'category',
@@ -67,12 +67,12 @@ def read_csv(filepath):
                  'helpful_votes' : 'Int64',
                  'total_votes' : 'Int64',
                  'vine' : 'category',
-                 'review_date' : 'str',
+                 #'review_date' : 'str',
                  'verified_purchase' : 'category',
                  'review_headline' : 'str',
                  'review_body' : 'str'}
 	#df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
-	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False, dtype=column_dtypes, usecols=colName)
+	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=size, error_bad_lines=False, dtype=column_dtypes, usecols=colName, parse_dates=parseDate infer_datetime_format=True)
 	#df_chuck = df_chuck.fillna(0)
 	return df_chunk
 
