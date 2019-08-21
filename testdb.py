@@ -16,6 +16,12 @@ from string import ascii_lowercase
 import gensim, os, re, pymongo, itertools, nltk, snowballstemmer
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 from pandarallel import pandarallel
+from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import HashingVectorizer
+import matplotlib.pylab as plt
+import seaborn as sns
+import scipy.sparse as sparse
 
 
 #from odo import odo
@@ -28,7 +34,8 @@ cat_text = sys.argv[1] #category we want to extract
 db_name = sys.argv[2] #get the db name for it
 flag_calc_scores = False
 isMongo = False
-size = 200000
+isCalc = False
+size = 500000
 chunk_list = []  # append each chunk df here 
 analyser = SentimentIntensityAnalyzer()
 pandarallel.initialize(progress_bar=True)
@@ -53,26 +60,27 @@ def sentiment_analyzer_scores(sentence):
 
 
 def read_csv(filepath):
-	parseDate = ['review_date']
+	#parseDate = ['review_date']
 	#dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
-	colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
+	#colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
+	colName = ['customer_id', 'review_id','review_body']
 	column_dtypes = {'marketplace': 'category',
                  'customer_id': 'uint32',
                  'review_id': 'str',
-                 'product_id': 'str',
-                 'product_parent': 'uint32',
-                 'product_title' : 'str',
-                 'product_category' : 'category',
-                 'star_rating' : 'Int64',
-                 'helpful_votes' : 'Int64',
-                 'total_votes' : 'Int64',
-                 'vine' : 'category',
+                 #'product_id': 'str',
+                 #'product_parent': 'uint32',
+                 #'product_title' : 'str',
+                 #'product_category' : 'category',
+                 #'star_rating' : 'Int64',
+                 #'helpful_votes' : 'Int64',
+                 #'total_votes' : 'Int64',
+                 #'vine' : 'category',
                  #'review_date' : 'str',
-                 'verified_purchase' : 'category',
-                 'review_headline' : 'str',
+                 #'verified_purchase' : 'category',
+                 #'review_headline' : 'str',
                  'review_body' : 'str'}
 	#df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
-	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=size, error_bad_lines=False, dtype=column_dtypes, usecols=colName, parse_dates=parseDate infer_datetime_format=True)
+	df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=size, error_bad_lines=False, dtype=column_dtypes, usecols=colName)
 	#df_chuck = df_chuck.fillna(0)
 	return df_chunk
 
@@ -131,6 +139,14 @@ def denoise_text(text):
 def memory_usage(df):
 	return(round(df.memory_usage(deep=True).sum() / 1024 ** 2, 2))
 
+def calculateDocumentSim(document):
+	cv = HashingVectorizer()
+	dt_mat = cv.fit_transform(document)
+	tfidf = TfidfTransformer(smooth_idf=True,use_idf=True)
+	tfidf = tfidf.fit_transform(dt_mat)
+	pairwise_similarity = tfidf * tfidf.T # Multiple the matrix by it's transformation to get the identify matrix to find the similarity 
+	return pairwise_similarity
+
 #sample = denoise_text(sample)
 #print(sample)
 
@@ -166,29 +182,38 @@ else:
 		chunk['review_body'] = chunk['review_body'].astype(str)
 		wordlist = filter(None, " ".join(list(set(list(itertools.chain(*chunk['review_body'].str.split(' ')))))).split(" "))
 		chunk['stemmed_text_data'] = [' '.join(filter(None,filter(lambda word: word not in stop, line))) for line in chunk['review_body'].str.lower().str.split(' ')]
-		#wholething = chunk['stemmed_text_data'].tolist()
-		print("APPLYING READABILITY SCORE")
-		chunk['readscore'] = chunk['stemmed_text_data'].parallel_apply(test)
-		print("APPLYING SENTIMENT SCORE")
-		chunk['sentiment'] = chunk['stemmed_text_data'].parallel_apply(sentiment_analyzer_scores)
-		df_r = chunk['sentiment'].parallel_apply(pd.Series)
-		chunk = pd.concat([chunk,df_r], axis=1).drop('sentiment',axis=1) #drops the sentiment score
-		chunk = chunk.drop('review_body', axis=1)
-		chunk = chunk.drop('stemmed_text_data', axis=1)
+		if isCalc == True:
+			print("APPLYING READABILITY SCORE")
+			chunk['readscore'] = chunk['stemmed_text_data'].parallel_apply(test)
+			print("APPLYING SENTIMENT SCORE")
+			chunk['sentiment'] = chunk['stemmed_text_data'].parallel_apply(sentiment_analyzer_scores)
+			df_r = chunk['sentiment'].parallel_apply(pd.Series)
+			chunk = pd.concat([chunk,df_r], axis=1).drop('sentiment',axis=1) #drops the sentiment score
+			chunk = chunk.drop('review_body', axis=1)
+			chunk = chunk.drop('stemmed_text_data', axis=1)
+		chunk_list.append(chunk)
 		#print(df_r.head())
 
 		#print("APPLYING POLARITY SCORE")
 		#chunk['polarity'] = chunk['review_body'].apply(sentiment_calc_polarity)
-		chunk_list.append(chunk)
+	
+	print("CONCAT")
 	df = pd.concat(chunk_list)
+	print("CALCULATING PAIRWISE SIMILARITY")
+	pairwise_similarity = calculateDocumentSim(df['stemmed_text_data'].astype(str))
+	print("DISPLAY HEATMAP")
+	ax = sns.heatmap(pairwise_similarity.todense())
+	plt.show()
+
+	#sns.plt.show()
 
 
 	#name = db_name + ".pickle"
-	name1 = db_name + ".csv"
+	#name1 = db_name + ".csv"
 	#df.to_parquet(name,compression='gzip')
 	#df.to_pickle(name)
-	df.to_csv(name1)
-	print(df.head())
+	#df.to_csv(name1)
+	#print(df.head())
 
 	#print(df.dtypes())
 
