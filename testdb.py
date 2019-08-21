@@ -140,8 +140,10 @@ def memory_usage(df):
 	return(round(df.memory_usage(deep=True).sum() / 1024 ** 2, 2))
 
 def calculateDocumentSim(document):
-	cv = HashingVectorizer()
+	print("Count Vector")
+	cv = CountVectorizer(stop_words=’english’ ,min_df=0.02, max_df=0.60, max_features=10000)
 	dt_mat = cv.fit_transform(document)
+	print("TFIDF Vector")
 	tfidf = TfidfTransformer(smooth_idf=True,use_idf=True)
 	tfidf = tfidf.fit_transform(dt_mat)
 	pairwise_similarity = tfidf * tfidf.T # Multiple the matrix by it's transformation to get the identify matrix to find the similarity 
