@@ -72,7 +72,7 @@ def read_csv(filepath):
 	parseDate = ['review_date']
 	#dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
 	#colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
-	colName = ['customer_id','product_category','star_rating','helpful_votes','total_votes', 'verified_purchase', 'readscore', 'compound']
+	colName = ['customer_id','product_category','star_rating','helpful_votes','total_votes', 'verified_purchase', 'vine','readscore', 'compound']
 	column_dtypes = {'marketplace': 'category',
                  'customer_id': 'uint32',
                  #'review_id': 'str',
@@ -92,7 +92,7 @@ def read_csv(filepath):
                  'compound' : 'float32'
                  }
 	#df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
-	df_chunk = pd.read_csv(filepath, sep='\t', header=0, error_bad_lines=False, dtype=column_dtypes, usecols=colName, parse_dates=parseDate)
+	df_chunk = pd.read_csv(filepath, sep=',', header=0, error_bad_lines=False, dtype=column_dtypes, usecols=colName, parse_dates=parseDate)
 	#df_chuck = df_chuck.fillna(0)
 	return df_chunk
 
@@ -207,26 +207,11 @@ else:
 	li = getAllFiles(db_name)
 
 	for file in li:
+		print(file)
 		df = read_csv(file)
 		chunk_list.append(df)
 
 	frame = pd.concat(chunk_list, axis=0, ignore_index=True)
 	frame.to_csv('output.csv')
-
-
-
-
-
-	for index, chunk in enumerate(df_chunk):
-		stop = stemit()
-		chunk['review_body'].replace('[!"#%\'()*+,-./:;<=>?@\[\]^_`{|}~1234567890’”“′‘\\\]',' ',inplace=True,regex=True)
-		chunk['review_body'] = chunk['review_body'].astype(str)
-		wordlist = filter(None, " ".join(list(set(list(itertools.chain(*chunk['review_body'].str.split(' ')))))).split(" "))
-		chunk['stemmed_review'] = [' '.join(filter(None,filter(lambda word: word not in stop, line))) for line in chunk['review_body'].str.lower().str.split(' ')]
-		chunk = chunk.drop('review_body', axis=1)
-		#print(chunk.head())
-		chunk_list.append(chunk)
-	df = pd.concat(chunk_list)
-	mat = get_top_n_words(df['stemmed_review'],10)
 	#for word, freq in mat:
 	#	print(word,freq)
