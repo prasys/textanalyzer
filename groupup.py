@@ -222,6 +222,8 @@ else:
 
 	df.assign(output) #output the new column 
 
+	#https://blog.cambridgespark.com/how-to-determine-the-optimal-number-of-clusters-for-k-means-clustering-14f27070048f
+
 
 
 
@@ -241,7 +243,11 @@ else:
 
 	#Process them 
 
-	#41914525 rows × 10 columns - time to reduce it further 
+	#419,14,525 rows × 10 columns - time to reduce it further 
+
+	#22,150,186
+
+	#64,064,711, are the people who have posted > 2 comments 
 
 
 
