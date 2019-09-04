@@ -202,6 +202,58 @@ else:
 	#print(df.head())
 	isRun = False
 	#chunk_list
-	chunk_list =[]
-	df = read_csv(file)
-	
+	#chunk_list =[]
+	df = read_csv(db_name)
+	print(df.shape)
+	vc = df['customer_id'].value_counts()
+	df[df['customer_id'].isin(vc.index[vc.values > 1])].uid.value_counts() # drop single occurance of customer purchase as we do not need them to be processed at all 
+	cat_features =['vine','verified_purchase','product_category','star_rating']
+	cont_features =['compound','readscore','total_votes','helpful_votes']
+	for col in cat_features: # replace the damn thing
+		dummies = pd.get_dummies(df[col], prefix=col)
+		df = pd.concat([df, dummies], axis=1)
+		df.drop(col, axis=1, inplace=True)
+
+	# Remove outliers or 1 post reviews so to be ignored for it to improve processing speed times 
+	#group_df = df.groupby('customer_id') # group them by their ids
+
+	group_df = df.groupby('customer_id')
+	output = group_df['review_date'].apply(lambda x: x - x.iloc[0]) #calculate diff for the date 
+
+	df.assign(output) #output the new column 
+
+
+
+
+
+
+
+
+	#https://stackoverflow.com/questions/38915186/pandas-use-groupby-to-count-difference-between-dates
+
+
+
+
+ 41 Miliion customers 
+
+
+
+
+	#Process them 
+
+	#41914525 rows × 10 columns - time to reduce it further 
+
+
+
+
+
+
+
+
+
+	# Standardize and assume all features are important , maybe some are not - but lets take a look..... we have a sample of how it works and lets see if it does classification 
+
+
+
+
+
