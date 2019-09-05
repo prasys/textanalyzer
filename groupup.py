@@ -30,6 +30,8 @@ import numexpr as ne
 import scipy.sparse as sparse
 from pathlib import Path
 from wordcloud import WordCloud
+from sklearn import preprocessing
+from sklearn.preprocessing import StandardScaler
 import glob
 
 
@@ -205,22 +207,48 @@ else:
 	#chunk_list =[]
 	df = read_csv(db_name)
 	print(df.shape)
-	vc = df['customer_id'].value_counts()
-	df[df['customer_id'].isin(vc.index[vc.values > 1])].uid.value_counts() # drop single occurance of customer purchase as we do not need them to be processed at all 
+	#vc = df['customer_id'].value_counts()
+	#df[df['customer_id'].isin(vc.index[vc.values > 1])].uid.value_counts() # drop single occurance of customer purchase as we do not need them to be processed at all 
 	cat_features =['vine','verified_purchase','product_category','star_rating']
 	cont_features =['compound','readscore','total_votes','helpful_votes']
-	for col in cat_features: # replace the damn thing
+	print("Normalizing features")
+	df[]
+	for index, col in enumerate(eremucat_features):
+		print("current index " + str(index))
 		dummies = pd.get_dummies(df[col], prefix=col)
 		df = pd.concat([df, dummies], axis=1)
 		df.drop(col, axis=1, inplace=True)
+	print("Processed them")
+	std_data = df[cont_features]
+	print("Make Scaler to fix the data")
+	scaler = StandardScaler().fit(std_data)
+	new_values = scaler.transform(std_data)
+	df[cont_features] = new_values
+	print("Save to the dataframe")
+	df.to_pickle('./output.pkl')
+
+
+
+
+
+
+
 
 	# Remove outliers or 1 post reviews so to be ignored for it to improve processing speed times 
 	#group_df = df.groupby('customer_id') # group them by their ids
 
-	group_df = df.groupby('customer_id')
-	output = group_df['review_date'].apply(lambda x: x - x.iloc[0]) #calculate diff for the date 
 
-	df.assign(output) #output the new column 
+	#group_df = df.groupby('customer_id')
+	#output = group_df['review_date'].apply(lambda x: x - x.iloc[0]) #calculate diff for the date 
+
+	#df.assign(output) #output the new column
+
+
+
+
+
+
+
 
 	#https://blog.cambridgespark.com/how-to-determine-the-optimal-number-of-clusters-for-k-means-clustering-14f27070048f
 
@@ -236,18 +264,18 @@ else:
 
 
 
- 41 Miliion customers 
+ #41 Miliion customers 
 
 
 
 
 	#Process them 
 
-	#419,14,525 rows × 10 columns - time to reduce it further 
+	#41,914,525 rows ....which i don't think is correcttt
 
 	#22,150,186
 
-	#64,064,711, are the people who have posted > 2 comments 
+	#64,064,711, are the people who have posted at least 2 or more comments 
 
 
 
