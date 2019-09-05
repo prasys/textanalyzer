@@ -212,7 +212,6 @@ else:
 	cat_features =['vine','verified_purchase','product_category','star_rating']
 	cont_features =['compound','readscore','total_votes','helpful_votes']
 	print("Normalizing features")
-	df[]
 	for index, col in enumerate(eremucat_features):
 		print("current index " + str(index))
 		dummies = pd.get_dummies(df[col], prefix=col)
