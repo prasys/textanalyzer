@@ -74,7 +74,7 @@ def read_csv(filepath):
 	parseDate = ['review_date']
 	#dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
 	#colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
-	colName = ['customer_id','product_category','star_rating','helpful_votes','total_votes', 'verified_purchase', 'vine','readscore', 'compound']
+	colName = ['customer_id','product_category','star_rating','helpful_votes','total_votes', 'verified_purchase', 'vine','readscore', 'compound' ,'review_date']
 	column_dtypes = {'marketplace': 'category',
                  'customer_id': 'uint32',
                  #'review_id': 'str',
