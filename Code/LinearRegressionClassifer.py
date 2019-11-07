@@ -37,6 +37,8 @@ from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import NearMiss
 import string
 import xgboost as xgb
+from pushover import Client
+
 
 
 
@@ -50,7 +52,7 @@ doc2VecFileName ="doc2vec"
 useSMOTE = True
 STATE = 21
 #logistic , nb , svm
-DETERMINER = 'xgboost'
+DETERMINER = 'rf'
 
 
 # Take any text - and converts it into a vector. Requires the trained set (original vector) and text we pan to infer (shall be known as test)
@@ -218,7 +220,8 @@ def selectClassifier(weights='balanced',classifymethod='logistic'):
   #clf = svm.NuSVC(kernel='rbf',decision_function_shape='ovo',probability=True)
   #classifier = LinearSVC(random_state=21, tol=1e-4,C=1000,fit_intercept=False)
   if 'logistic' in classifymethod:
-    cy = LogisticRegression(fit_intercept=True, max_iter=8000,solver='newton-cg',random_state=STATE,class_weight=weights)
+    #cy = LogisticRegression(fit_intercept=True, max_iter=8000,solver='newton-cg',random_state=STATE,class_weight=weights)
+    cy = LogisticRegression()
     return cy
   elif 'nb' in classifymethod:
   	cy = GaussianNB()
@@ -227,13 +230,60 @@ def selectClassifier(weights='balanced',classifymethod='logistic'):
     cy = xgb.XGBClassifier()
     return cy
   elif 'svm' in classifymethod:
-    cy = SVC(random_state=STATE, tol=1e-3,C=3000,class_weight=weights,max_iter=8000,probability=True)
+    cy = SVC(random_state=STATE,probability=True)
+    return cy
+  elif 'rf' in classifymethod:
+    cy = RandomForestClassifier(random_state=STATE)
     return cy
   elif 'kn' in classifymethod:
     cy = MLPClassifier(hidden_layer_sizes=50,learning_rate='adaptive',random_state=STATE,solver='lbfgs')
     return cy
   else:
     return null
+
+
+def gridParameters(classifyMethod):
+  if 'rf' in classifyMethod:
+    grid_param = {
+    'n_estimators': [100, 300, 500, 800, 900,1000],
+    'criterion': ['gini', 'entropy'],
+    'max_features': ['auto','sqrt','log2'],
+    'min_samples_split' : [2,4,8,10,15,30],
+    'class_weight': ['balanced','balanced_subsample'],
+    'min_weight_fraction_leaf' : [0.0,0.1,0.3,0.5],
+    'max_depth': [1,3,5,8,10,15,20],
+    'bootstrap': [True, False]
+  }
+  elif 'logistic' in classifyMethod:
+    grid_param = {
+    'penalty' : ['l2'],
+    'tol': [1e-4, 1e-5, 5e-4 , 5e-5, 5e-10],
+    'C': [0.5,1.0,5.0,10.0,50.0],
+    'fit_intercept': [True,False],
+    'solver': ['newton-cg','lbfgs','sag'],
+    'max_iter': [100,200,500,1000,2000]
+    }
+
+  elif 'xgboost' in classifyMethod:
+    grid_param = {
+    'n_estimators': [100,200,600,800],
+    'min_child_weight': [1, 5, 10],
+    'gamma': [0.5, 1, 1.5, 2, 5],
+    'subsample': [0.6, 0.8, 1.0],
+    'colsample_bytree': [0.6, 0.8, 1.0],
+    'max_depth': [3, 4, 5]
+  }
+
+  elif 'svm' in classifyMethod:
+    grid_param = {
+    # 0.01, 0.1, 1, 10,100,1000,3000 , 1e-4, 1e-5, 5e-4 , 5e-5,5e-10 , 500,1000,8000
+    'C' : [0.001,0.1,1,10,100,1000,3000],
+    'tol': [1e-3,1e-4,1e-5,5e-4,5e-5,5e-10],
+    'max_iter': [100,500,1000],
+    'gamma': [0.001,0.005,0.010],
+  }
+
+  return grid_param
 
 
 def getChars(s):
@@ -287,7 +337,21 @@ def showGraph(model):
 
 
 # Performs a Grid Search
-def gridSearch(model,params):
+def gridSearch(model,params,x_train,y_train):
+  params = gridParameters(params)
+  gd_sr = GridSearchCV(estimator=model,
+                     param_grid=params,
+                     scoring='accuracy',
+                     cv=3,
+                     n_jobs=-1)
+  gd_sr.fit(x_train, y_train)
+  best_parameters = gd_sr.best_params_
+  score2 = ("Best Performing Parameters",best_parameters)
+  best_score = gd_sr.best_score_
+  score1 = ("Best Score",best_score)
+  #output = best_parameters + " " + best_score
+  return (score2,score1)
+
 
 
 
@@ -383,15 +447,32 @@ if __name__ == '__main__':
       #test_x = scaler.transform(test_x)
 
 
-
+    title = "GridSearch"  
     weights = get_class_weights(label)
+    client = Client("uwio1KHhzqCtQ3AXa4yK5e3J1KpvQn", api_token="am9vr39j8o5gm1g5jfrazfzudebapq")
+    client.send_message("Hello!", title=title)
+
     #smt = SMOTE()
     if useSMOTE is True:
       print("USING SMOTE TO BOOST THE IMBALANCED DATA")
       smt = SMOTE() # Boost the samples to improve the classification 
       train_x, y_train = smt.fit_sample(train_x, y_train)
 
-    classifier = selectClassifier(classifymethod=DETERMINER)
+
+
+    classifiers = ['svm','rf','logistic','xgboost']
+
+    for classify in classifiers:
+      client.send_message(("Running ",classify), title=title)
+      classifier = selectClassifier(classifymethod=classify)
+      scoresA, scoreB = gridSearch(classifier,classify,sent,label)
+      f = open("gridSearchOutput.txt", "a")
+      f.write(classify)
+      f.write(str(scoresA))
+      f.write(str(scoreB))
+      f.close()
+
+
    # classifier = AdaBoostClassifier(random_state=STATE,n_estimators=50, base_estimator=old)
     #hasher = RandomTreesEmbedding(n_estimators=10, random_state=0, max_depth=3)
     #train_x = hasher.fit_transform(train_x)
@@ -447,6 +528,8 @@ if __name__ == '__main__':
 
     classifier.fit(train_x, y_train)
     score = cross_val_score(estimator=classifier,X=sent,y=label,cv=3)
+
+
 
  #   clf.fit(train_x, y_train)
  #   clf2.fit(train_x, y_train)
