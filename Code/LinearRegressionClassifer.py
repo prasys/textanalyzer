@@ -257,11 +257,11 @@ def gridParameters(classifyMethod):
   elif 'logistic' in classifyMethod:
     grid_param = {
     'penalty' : ['l2'],
-    'tol': [1e-4, 1e-5, 5e-4 , 5e-5, 5e-10],
-    'C': [0.5,1.0,5.0,10.0,50.0],
+    'tol': [1e-4, 1e-5],
+    'C': [0.5,1.0,5.0],
     'fit_intercept': [True,False],
     'solver': ['newton-cg','lbfgs','sag'],
-    'max_iter': [100,200,500,1000,2000]
+    'max_iter': [100,200]
     }
 
   elif 'xgboost' in classifyMethod:
@@ -343,7 +343,7 @@ def gridSearch(model,params,x_train,y_train):
                      param_grid=params,
                      scoring='accuracy',
                      cv=3,
-                     n_jobs=-1)
+                     n_jobs=5)
   gd_sr.fit(x_train, y_train)
   best_parameters = gd_sr.best_params_
   score2 = ("Best Performing Parameters",best_parameters)
@@ -460,7 +460,7 @@ if __name__ == '__main__':
 
 
 
-    classifiers = ['svm','rf','logistic','xgboost']
+    classifiers = ['logistic','xgboost']
 
     for classify in classifiers:
       client.send_message(("Running ",classify), title=title)
