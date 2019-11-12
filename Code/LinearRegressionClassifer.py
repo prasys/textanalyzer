@@ -50,10 +50,11 @@ isEmbeddings = True
 isBOW = False
 doc2VecFileName ="doc2vec"
 useSMOTE = True
-searchParams = False
+searchParams = True
 STATE = 21
 #logistic , nb , svm
 DETERMINER = 'xgboost'
+embedType = 'bert'
 
 
 # Take any text - and converts it into a vector. Requires the trained set (original vector) and text we pan to infer (shall be known as test)
@@ -401,7 +402,12 @@ if __name__ == '__main__':
 
 
     if isEmbeddings is True:
-      sent = loadEmbeddings('embeddings.npy')
+      if embedType is 'guse':
+        sent = loadEmbeddings('embeddings.npy')
+
+      if embedType is 'bert':
+        sent = loadEmbeddings('output_alta.npy')
+
    #   nouns = df['nouns'].to_numpy()
   #    caps = df['uppercase'].to_numpy()
   #    punt = df['punct'].to_numpy()
@@ -465,7 +471,7 @@ if __name__ == '__main__':
 
 
     if searchParams is True:
-      classifiers = ['logistic','xgboost']
+      classifiers = ['rf','svm','logistic','xgboost']
       for classify in classifiers:
         client.send_message(("Running ",classify), title=title)
         classifier = selectClassifier(classifymethod=classify)
