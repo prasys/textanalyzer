@@ -1,5 +1,6 @@
 import pandas as pd
 import fasttext
+import numpy as np
 from io import StringIO
 import csv
 from sklearn.metrics import f1_score , recall_score , accuracy_score , precision_score , jaccard_score , balanced_accuracy_score, confusion_matrix
@@ -31,14 +32,18 @@ def read_csv(filepath):
     return df_chunk
 
 
-def getLabelValue(wolo):
+def getPredictedLabel(text,models):
 
-	string = wolo[0]
-
-	strings = string.split()
-	for s in strings:
-		if s.isdigit():
-			return s
+	output = models.predict(text)
+	label = str(output[0])
+	if '1' in label:
+		print ("output working")
+	#print(label)
+	#strings = label.split()
+	#print(strings)
+	#for s in strings:
+	#	if s.isdigit():
+	#		return s
 
 # This method gives 
 def preProcessToFastTXTFormat(dataFrame,label,text,outputName,col=['Comment','Prediction']):
@@ -60,19 +65,21 @@ def preProcessToFastTXTFormat(dataFrame,label,text,outputName,col=['Comment','Pr
 
 
 def splitTextFileAndValidate(df,actual,labels):
+	t = df[LABEL]
 	Val = StratifiedKFold(n_splits=noSplits, random_state=STATE, shuffle=True) # DO OUR FOLD here , maybe add the iteration
-	for train_index,test_index in Val.split(actual,labels):
-		train_df = df.iloc[train_index]
-		test_df = df.iloc[test_index]
+	for train_index,test_index in Val.split(np.zeros(len(t)),t):
+		train_df = df.loc[train_index]
+		test_df = df.loc[test_index]
 		preProcessToFastTXTFormat(train_df,LABEL,TEXT,TRAINTXT) #it will do processing here for us
 		model = fasttext.train_supervised(TRAINTXT)
-		test_df['Predicted'] = test_df[TEXT].apply(model.predict) #run our prediction model
-		test_df[PREDICTED] = test_df[PREDICTED].apply(getLabelValue) #run our prediction model
+		test_df['Predicted'] = test_df[TEXT].apply(getPredictedLabel, models=model) #run our prediction model
+		#test_df[PREDICTED] = test_df[PREDICTED].apply(getLabelValue) #run our prediction model
 		print(test_df.head())
 
 
 if __name__ == '__main__':
 	df = read_csv('train_classifier.csv')
+	#preProcessToFastTXTFormat(df,LABEL,TEXT,'output.txt')
 	print(df.head())
 	actual = df[TEXT].tolist()
 	labels = df[LABEL].tolist()
