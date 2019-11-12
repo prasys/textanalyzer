@@ -50,9 +50,10 @@ isEmbeddings = True
 isBOW = False
 doc2VecFileName ="doc2vec"
 useSMOTE = True
+searchParams = False
 STATE = 21
 #logistic , nb , svm
-DETERMINER = 'rf'
+DETERMINER = 'xgboost'
 
 
 # Take any text - and converts it into a vector. Requires the trained set (original vector) and text we pan to infer (shall be known as test)
@@ -221,19 +222,19 @@ def selectClassifier(weights='balanced',classifymethod='logistic'):
   #classifier = LinearSVC(random_state=21, tol=1e-4,C=1000,fit_intercept=False)
   if 'logistic' in classifymethod:
     #cy = LogisticRegression(fit_intercept=True, max_iter=8000,solver='newton-cg',random_state=STATE,class_weight=weights)
-    cy = LogisticRegression()
+    cy = LogisticRegression(C= 1.0, fit_intercept=True, max_iter=100, penalty='l2', solver= 'newton-cg', tol= 0.0001)
     return cy
   elif 'nb' in classifymethod:
   	cy = GaussianNB()
   	return cy
   elif 'xgboost' in classifymethod:
-    cy = xgb.XGBClassifier()
+    cy = xgb.XGBClassifier(colsample_bytree= 0.6, gamma= 2, max_depth= 5, min_child_weight= 5, n_estimators= 100, subsample= 0.8)
     return cy
   elif 'svm' in classifymethod:
-    cy = SVC(random_state=STATE,probability=True)
+    cy = SVC(random_state=STATE,probability=True,C= 100, gamma= 0.005, max_iter= 1000, tol= 0.001)
     return cy
   elif 'rf' in classifymethod:
-    cy = RandomForestClassifier(random_state=STATE)
+    cy = RandomForestClassifier(bootstrap = True, class_weight= 'balanced', criterion= 'entropy', max_depth= 10, max_features = 'auto', min_samples_split= 30, min_weight_fraction_leaf= 0.0, n_estimators = 500,random_state=STATE)
     return cy
   elif 'kn' in classifymethod:
     cy = MLPClassifier(hidden_layer_sizes=50,learning_rate='adaptive',random_state=STATE,solver='lbfgs')
@@ -310,14 +311,18 @@ def FoldValidate(original,truth,classifier,iter=3):
   for train_index,test_index in Val.split(original,truth):
     model2 = classifier
     model2.fit(original[train_index], truth[train_index])
-    scores.append(classifier.score(original[train_index], truth[train_index]))
+    x_output = model2.predict(original[test_index])
+   # print(x_output.shape)
+   # print(truth[test_index].shape)
+  #  scores.append(classifier.score(x_output, truth[test_index]))
+    print(confusion_matrix(x_output, truth[test_index]))
     #score = classifier.score(original[train_index], truth[train_index])
     #print("Linear Regression Accuracy (using Weighted Avg):", score)
-    tester = classifier.predict_proba(original[test_index])
-    tester = tester[:,1]
-    calculateScoresVariousAlphaValues(tester,truth[test_index])
-  scores = numpy.asarray(scores)
-  print("Accuracy Score Is:", numpy.mean(scores))
+  #  tester = classifier.predict_proba(original[test_index])
+  #  tester = tester[:,1]
+  #  calculateScoresVariousAlphaValues(tester,truth[test_index])
+ # scores = numpy.asarray(scores)
+  #print("Accuracy Score Is:", numpy.mean(scores))
 
 
    # print("Valuesdfs for train are ", train_index)
@@ -459,19 +464,20 @@ if __name__ == '__main__':
       train_x, y_train = smt.fit_sample(train_x, y_train)
 
 
+    if searchParams is True:
+      classifiers = ['logistic','xgboost']
+      for classify in classifiers:
+        client.send_message(("Running ",classify), title=title)
+        classifier = selectClassifier(classifymethod=classify)
+        scoresA, scoreB = gridSearch(classifier,classify,sent,label)
+        f = open("gridSearchOutput.txt", "a")
+        f.write(classify)
+        f.write(str(scoresA))
+        f.write(str(scoreB))
+        f.close()
 
-    classifiers = ['logistic','xgboost']
-
-    for classify in classifiers:
-      client.send_message(("Running ",classify), title=title)
-      classifier = selectClassifier(classifymethod=classify)
-      scoresA, scoreB = gridSearch(classifier,classify,sent,label)
-      f = open("gridSearchOutput.txt", "a")
-      f.write(classify)
-      f.write(str(scoresA))
-      f.write(str(scoreB))
-      f.close()
-
+    else:
+      classifier = selectClassifier(classifymethod=DETERMINER)
 
    # classifier = AdaBoostClassifier(random_state=STATE,n_estimators=50, base_estimator=old)
     #hasher = RandomTreesEmbedding(n_estimators=10, random_state=0, max_depth=3)
