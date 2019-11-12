@@ -52,15 +52,20 @@ if __name__ == '__main__':
 	print("Start Embeddings")
 	bert_embedding = BertEmbedding(ctx=ctx)
 	results = bert_embedding(CommentList)
-	print(len(results))
+	#print(len(results))
 	toNumpy = []
 
-	#for result in results:
-		#print(result[1])
-		#toNumpy.append(result[1])
+	for result in results:
+	#	blah = result[0]
+		array = numpy.asarray(result[1])
+		mean_array = numpy.mean(array,axis=0)
+		#print(type(result[1]))
+	#	print(mean_array.shape)
+		toNumpy.append(mean_array)
 
-	#output = numpy.asarray(toNumpy) # convert it to array
-	#print(output.shape)
+	output = numpy.array(toNumpy) # convert it to array
+	print(output.shape)
+	numpy.save('output_alta.npy', output, allow_pickle=True)
 
 
  
