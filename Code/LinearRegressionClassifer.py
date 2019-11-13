@@ -50,11 +50,11 @@ isEmbeddings = True
 isBOW = False
 doc2VecFileName ="doc2vec"
 useSMOTE = True
-searchParams = True
+searchParams = False
 STATE = 21
 #logistic , nb , svm
-DETERMINER = 'xgboost'
-embedType = 'bert'
+DETERMINER = 'logistic'
+embedType = 'guse' #or bert
 
 
 # Take any text - and converts it into a vector. Requires the trained set (original vector) and text we pan to infer (shall be known as test)
@@ -309,14 +309,32 @@ def w2v_preprocessing(df):
 def FoldValidate(original,truth,classifier,iter=3):
   Val = StratifiedKFold(n_splits=iter, random_state=STATE, shuffle=True) # DO OUR FOLD here , maybe add the iteration
   scores = []
+  tns = [] # true neg
+  fps = [] # false positive
+  fns = [] # false negative
+  tps = [] # true positive
   for train_index,test_index in Val.split(original,truth):
     model2 = classifier
     model2.fit(original[train_index], truth[train_index])
     x_output = model2.predict(original[test_index])
    # print(x_output.shape)
    # print(truth[test_index].shape)
-  #  scores.append(classifier.score(x_output, truth[test_index]))
-    print(confusion_matrix(x_output, truth[test_index]))
+    #scores.append(classifier.score(x_output, truth[test_index]))
+    tn, fp , fn , tp = confusion_matrix(x_output, truth[test_index]).ravel()
+    score = accuracy_score(x_output,truth[test_index])
+    tns.append(tn)
+    fps.append(fp)
+    fns.append(fn)
+    tps.append(tp)
+    scores.append(score)
+
+  print("TP is,",numpy.mean(tps))
+  print("FP is,",numpy.mean(fps))
+  print("FN is,",numpy.mean(fns))
+  print("TN is,",numpy.mean(tns))
+  print("Avg Accuracy is,",numpy.mean(scores))
+
+
     #score = classifier.score(original[train_index], truth[train_index])
     #print("Linear Regression Accuracy (using Weighted Avg):", score)
   #  tester = classifier.predict_proba(original[test_index])

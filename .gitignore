@@ -1,3 +1,7 @@
 
 testdb copy.py
 .DS_Store
+Code/crawl-300d-2M.vec
+Code/.DS_Store
+Code/fast_text_test.csv
+Code/train.txt
