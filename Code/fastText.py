@@ -84,7 +84,7 @@ def splitTextFileAndValidate(df,actual,labels):
 		#print(train_df.head())
 		#print(test_df.head())
 		preProcessToFastTXTFormat(train_df,LABEL,TEXT,TRAINTXT) #it will do processing here for us
-		model = fasttext.train_supervised(TRAINTXT,dim=300,pretrainedVectors='crawl-300d-2M.vec')
+		model = fasttext.train_supervised(TRAINTXT,dim=300,pretrainedVectors='crawl-300d-2M.vec',neg=10,epoch=10,ws=3,t=0.001)
 		test_df['Predicted'] = test_df[TEXT].apply(getPredictedLabel, models=model) #run our prediction model
 		test_df[LABEL] = test_df[LABEL].astype(int)
 		test_df['Predicted'] = test_df['Predicted'].astype(int)
