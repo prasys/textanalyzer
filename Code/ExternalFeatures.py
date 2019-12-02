@@ -399,259 +399,35 @@ def perf_measure(y_actual, y_hat):
 
 #return(TP, FP, TN, FN)
 
+#Calculates the interjection 
+def getInterjections(blah):
+   # blah = blah.lower()
+    doc = nlp(blah)
+    result = 0
+    for word in doc:
+        if word.pos_ is 'INTJ': #INTJ is interjection with spacy
+            result += 1
+    return result
+
+
+def checkForExclamation(text):
+  #return 1 if there is 1 , and 2 if there are multiple uses of markers , and 0 if there is none
+  result = 0
+  for char in text:
+        if char == '!':
+            result +=1
+    
+  if result == 0:
+    return 0
+  elif result == 1:
+        return 1
+  else:
+    return 2
+  return result
+
 
 #Main Method
 if __name__ == '__main__':
   #train_classifier_3
-    df = read_csv("train_classifier.csv") #Read CSV
-    w2v_preprocessing(df) # process our junk here by converting it into tokens
-    scaler = preprocessing.MinMaxScaler()
-    label = df['Prediction'].values # take the values for prediction for our model
-    
-    #df['scores']
-  #  df['Comment'] = df.apply(lambda row: nltk.word_tokenize(row['Comment']), axis=1)
-  #  df['Comment'] = df['Comment'].apply(get_good_tokens)
-    #tagged_train = list(make_tagged_document(sentences_test,y_train))
-  #  df['nounratio'] = df['Comment'].apply(checkForNouns,ratio)
- #   commentCleaner(df) # clean the comments
-
-   # sent = df['Comment'].values # take the comments instead , but in our case we are gonna split them up
-
-
-
-    if isEmbeddings is True:
-      if embedType is 'guse':
-        sent = loadEmbeddings('embeddings.npy')
-
-      if embedType is 'bert':
-        sent = loadEmbeddings('output_alta.npy')
-
-   #   nouns = df['nouns'].to_numpy()
-  #    caps = df['uppercase'].to_numpy()
-  #    punt = df['punct'].to_numpy()
-      #nouns = preprocessing.normalize(nouns)
-  #    nouns = preprocessing.minmax_scale(nouns)
-   #   caps = preprocessing.minmax_scale(caps)
-    #  punt = preprocessing.minmax_scale(punt)
-    #  sent = mergeMatrix(sent,nouns)
-    #  sent = mergeMatrix(sent,caps)
-    #  sent = mergeMatrix(sent,punt)
-    #  print(sent.shape)
-      full_comment = sent
-    else:
-     sent = df
-   # sent  = df.drop(['Prediction'],axis=1)
-
-    sentences_train, sentences_test, y_train, y_test = train_test_split(
-    sent, label, test_size=0.25, random_state=10000)
-
-    if isBOW is True:
-      train_x = vectorize(sentences_train['Comment'],sentences_train['Comment'])
-      test_x = vectorize(sentences_train['Comment'],sentences_test['Comment'])
-      full_comment = vectorize(sent['Comment'],sent['Comment'])
-      full_comment = full_comment.toarray() # convert sparse matrix to dense
-      train_x = train_x.todense()
-      test_x = test_x.todense()
-
-    if isWord2Vec is True:
-      if isCreationMode is True:
-        print("Creating Doc2Vec Model")
-        model = createDoc2VecModel(sentences_train,y_train)
-      else:
-        print("Loading Doc2Vec Model")
-        model = loadDoc2VecModel()
-      train_x = convertToVectorFromDataframe(sentences_train)
-      test_x = convertToVectorFromDataframe(sentences_test)
-      full_comment = convertToVectorFromDataframe(df)
-      full_comment =  numpy.array(full_comment)
-
-
-    #We need to do the split for being consistent esle the naming runs
-
-    if isEmbeddings is True:
-      train_x = sentences_train
-      test_x = sentences_test
-      #scaler.fit(train_x)
-      #train_x = scaler.transform(train_x)
-      #test_x = scaler.transform(test_x)
-
-
-    title = "GridSearch"  
-    weights = get_class_weights(label)
-    client = Client("uwio1KHhzqCtQ3AXa4yK5e3J1KpvQn", api_token="am9vr39j8o5gm1g5jfrazfzudebapq")
-    client.send_message("Hello!", title=title)
-
-    #smt = SMOTE()
-    if useSMOTE is True:
-      print("USING SMOTE TO BOOST THE IMBALANCED DATA")
-      smt = SMOTE() # Boost the samples to improve the classification 
-      train_x, y_train = smt.fit_sample(train_x, y_train)
-
-
-    if searchParams is True:
-      classifiers = ['rf','svm','logistic','xgboost']
-      for classify in classifiers:
-        client.send_message(("Running ",classify), title=title)
-        classifier = selectClassifier(classifymethod=classify)
-        scoresA, scoreB = gridSearch(classifier,classify,sent,label)
-        f = open("gridSearchOutput.txt", "a")
-        f.write(classify)
-        f.write(str(scoresA))
-        f.write(str(scoreB))
-        f.close()
-
-    else:
-      classifier = selectClassifier(classifymethod=DETERMINER)
-
-   # classifier = AdaBoostClassifier(random_state=STATE,n_estimators=50, base_estimator=old)
-    #hasher = RandomTreesEmbedding(n_estimators=10, random_state=0, max_depth=3)
-    #train_x = hasher.fit_transform(train_x)
-    #classifer = RandomTreesEmbedding
-   # print(full_comment.mean(axis=0))
-  #  full_comment = preprocessing.scale(full_comment)
-  #  train_x = preprocessing.scale(train_x)
-   # test_x = preprocessing.scale(test_x)
-    #print("SEPERATOR")
-    #print(full_comment_test.mean(axis=0))
-
-    #print(full_comment.shape)
-    FoldValidate(full_comment,label,classifier)
-   # y_crossfold = CrossFoldData(test_x,y_test,classifier)
-   # y_crossfold = y_crossfold[:,1] # keep the 1 values only
-    #weights = [0.05, 0.10 , 0.15]
-
-
-    #pipe = make_pipeline(
-    #SMOTE(),
-    #LogisticRegression(fit_intercept=True, max_iter=1000,solver='newton-cg',random_state=STATE)
-    #)
-    #gsc = GridSearchCV(
-    #estimator=pipe,
-    #param_grid={
-        #'smote__ratio': [{0: int(num_neg), 1: int(num_neg * w) } for w in weights]
-    #    'smote__ratio': weights
-    #},
-    #scoring='f1',
-    #cv=3
-    #)
-    #grid_result = gsc.fit(train_x, y_train)
-    #print("Best parameters : %s" % grid_result.best_params_)
-
-
-
-
- #   vector_trained = vectorize(sentences_train,sentences_train) 
- #   vector_test = vectorize(sentences_train,sentences_test)
- #   skfold = StratifiedKFold(n_splits=3, random_state=100) # split into 3
- #   results_skfold = cross_val_score(classifier, full_comment, label, cv=skfold)
- #   print("Results Scores Are:" + str(results_skfold))
-
-
-
-   # print(scores)
-   # voter.fit(train_x, y_train)
- #   classifier.fit(vector_trained, y_train)
- #   clf.fit(vector_trained, y_train)
-    # implement the weights
-
-
-
-    classifier.fit(train_x, y_train)
-    score = cross_val_score(estimator=classifier,X=sent,y=label,cv=3)
-
-
-
- #   clf.fit(train_x, y_train)
- #   clf2.fit(train_x, y_train)
-   # classifier2.fit(train_x, y_train)
-   # score = classifier.score(vector_test, y_test)
-    #score = classifier.score(test_x, y_test)
-    print("Mean Accuracy Score:", score.mean())
-    print("Std Dev Accuracy Score:", score.std())
-   # score = classifier.score(full_comment, label)
-    #print("Linear Regression Accuracy (using FULL Avg):", score)
-    tester = classifier.predict_proba(test_x)
-    tester = tester[:,1]
-    print("*******NORMAL STARTS HERE*****")
-    calculateScoresVariousAlphaValues(tester,y_test)
-    #xgb.plot_importance(classifier, importance_type='gain',max_num_features=10)
-    #plt.show() # matplotlib plot
-
-
-
-  #  score = clf.score(vector_test, y_test)
-  #  score = clf.score(test_x, y_test)
-    #score = clf.score(vector_test, y_test)
-#    score = clf2.score(test_x, y_test)
-#    print("NB Accuracy (BOW):", score)
-   # f1score = f1_score(test_x, y_test)
-   # print("F1 Score:", score)
-#    unseendata = convertToVectorFromDataframe(sentences_test)
- #   tester = classifier.predict_proba(unseendata)
- #   tester = tester[:,1]
- #   print(tester.shape)
- #   print(y_test.shape)
-#    df3 = pd.DataFrame(tester)
-#    print("*******NORMAL STARTS HERE*****")
-#    calculateScoresVariousAlphaValues(tester,y_test)
- #   print("*******K-FOLD 3 SCORES STARTS HERE*****")
-  #  calculateScoresVariousAlphaValues(y_crossfold,y_test)
-  #  df3.to_csv('output_classifer_linear_reg_prob_test.csv',index=False)
-
-  #  sentences_test.to_csv('output_junk',index=False)
-  #  df3.to_csv('output_classifer_linear_reg_prob_test.csv',index=False)
-
-  #  score = voter.score(test_x, y_test)
-    #score = clf.score(vector_test, y_test)
-
-    #Calculate Prediction for it
-
-
-   # print("Voter Accuracy:", score)
-   # print("MLP Accuracy:", score)
-  #  score = classifier2.score(test_x, y_test)
-    #score = clf.score(vector_test, y_test)
-   # print("MLP Accuracy:", score)
-
-    ## New One Starts here
-    if isClassify == True:
-        df2 = read_csv2("test_noannotations.csv")
-        w2v_preprocessing(df2) # process our junk here by converting it into tokens
-        if isBOW is True:
-        	unseendata = vectorize(sentences_train['Comment'],sentences_test['Comment'])
-        elif isWord2Vec is True:
-        	unseendata = convertToVectorFromDataframe(df2)
-        elif isEmbeddings is True:
-          unseendata = loadEmbeddings('embeddings_prod.npy')
-          #nouns = df2['nouns'].to_numpy()
-          #nouns = preprocessing.minmax_scale(nouns)
-          #unseendata = mergeMatrix(unseendata,nouns)
-
-
-        tester = classifier.predict_proba(unseendata)
-        tester = tester[:,1]
-        i = 0.425
-        squarer = (lambda x: 1 if x>=i else 0)
-        fucd = numpy.vectorize(squarer) #our function to calculate
-        tester = fucd(tester)
-
-       # print(tester)
-       # print(type(tester))
-        df3 = pd.DataFrame(tester)
-#        print(df2.head())
-        #df2 = df2.drop(['Comment'], axis=1) # drop comments column as we do not need them
-#        print(tester)
- #       print(df2.head())
-        df2.to_csv('output_classifer_linear_reg_4.csv',index=False)
-        df3.to_csv('output_classifer_linear_reg_prob_4.csv',index=False)
-
-
-   # df['Classify'] = 'default value'
-    #print(df.head)
-    #print(detectSarcasm("Well I mean they had like 3 or 4 seconds to analyze before the shock wave destroyed their house so that should be plenty of time!"))
-    #df['Classify'] = df['Comment'].apply(detectSarcasm)
-   # df['Prediction'] = df['Comment'].apply(detectwords)
-  #  df = df.drop(['Comment'], axis=1) # drop comments column as we do not need them
-   #df2.to_csv('output_classifer_linear_reg.csv',index=False)
-    #print(df.head())
-    #print(df.head)
+    df = read_csv("train_classifier.csv") #Read CSV which contains everything
+    # To implement method to do the pre-processing here 
