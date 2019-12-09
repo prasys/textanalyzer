@@ -125,13 +125,14 @@ def get_good_tokens(sentence):
     removed_punctation = list(filter(lambda token: token, replaced_punctation))
     return removed_punctation
 
-# Converts to POS Tags that can be used
+# Converts to POS Tags that can be used for other stuff
 def tag(sent):
     words=nltk.word_tokenize(sent)
     tagged=nltk.pos_tag(words)
     return tagged
 
 #Checks for Nouns , To Implement the method found in Cindy Chung's Physc Paper (Search for Cindy Chung and James Pennebaker and cite here)
+
 def checkForNouns(text,method='None'):
     counter = 0
     counter2 = 0
@@ -399,7 +400,7 @@ def perf_measure(y_actual, y_hat):
 
 #return(TP, FP, TN, FN)
 
-#Calculates the interjection 
+#Calculates the amount of interjections 
 def getInterjections(blah):
    # blah = blah.lower()
     doc = nlp(blah)
@@ -410,6 +411,7 @@ def getInterjections(blah):
     return result
 
 
+#Counts the number of exclamination marks found in the sentence 
 def checkForExclamation(text):
   #return 1 if there is 1 , and 2 if there are multiple uses of markers , and 0 if there is none
   result = 0
