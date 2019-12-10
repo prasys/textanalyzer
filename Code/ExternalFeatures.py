@@ -429,9 +429,8 @@ def getPunctuation(text):
 def countTotalCaps(text):
   return (sum(map(str.isupper,text.split())))
 
-
-
 # checks for the quotation marks if they are present in the system and would return the amount that is present 
+
 
 def detectQuotationMarks(text):
   startIndex = text.find('\"')
