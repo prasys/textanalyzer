@@ -431,6 +431,16 @@ def countTotalCaps(text):
 
 
 
+# checks for the quotation marks if they are present in the system and would return the amount that is present 
+
+def detectQuotationMarks(text):
+  startIndex = text.find('\"')
+  if startIndex == -1:
+    return 0 #if we did not get the quotation mark for it
+  else:
+    return 1 # if we have found the quitation mark
+
+
 def checkForExclamation(text):
   #return 1 if there is 1 , and 2 if there are multiple uses of markers , and 0 if there is none
   result = 0
