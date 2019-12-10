@@ -55,6 +55,7 @@ STATE = 21
 #logistic , nb , svm , xgboost, rf
 DETERMINER = 'xgboost'
 embedType = 'bert' #or bert
+tagQuestions = ["isn't she","don't they","aren't we","wasn't it","didn't he","weren't we","haven't they","hasn't she","hadn't he","hadn't we","won't she","won't they","won't she","can't he","mustn't he","are we","does she","is it","was she","did they","were you","has she","has he","had we","had you","will they","will he","will she","will he","can she","must they"]
 
 
 # Take any text - and converts it into a vector. Requires the trained set (original vector) and text we pan to infer (shall be known as test)
@@ -130,6 +131,13 @@ def tag(sent):
     words=nltk.word_tokenize(sent)
     tagged=nltk.pos_tag(words)
     return tagged
+
+def tagQuestions(text,list_=tagQuestions):
+  if any(word in text for word in list_):
+    return 1
+  else: # if we cannot find any 
+    return 0 
+
 
 #Checks for Nouns , To Implement the method found in Cindy Chung's Physc Paper (Search for Cindy Chung and James Pennebaker and cite here)
 
@@ -362,20 +370,7 @@ def showGraph(model):
 
 
 # Performs a Grid Search
-def gridSearch(model,params,x_train,y_train):
-  params = gridParameters(params)
-  gd_sr = GridSearchCV(estimator=model,
-                     param_grid=params,
-                     scoring='accuracy',
-                     cv=3,
-                     n_jobs=5)
-  gd_sr.fit(x_train, y_train)
-  best_parameters = gd_sr.best_params_
-  score2 = ("Best Performing Parameters",best_parameters)
-  best_score = gd_sr.best_score_
-  score1 = ("Best Score",best_score)
-  #output = best_parameters + " " + best_score
-  return (score2,score1)
+
 
 
 
@@ -411,7 +406,31 @@ def getInterjections(blah):
     return result
 
 
-#Counts the number of exclamination marks found in the sentence 
+
+# Our method to count the Punctuation for it
+def getPunctuation(text): 
+  punctuation = []
+
+  for char in text:
+    if char in string.punctuation:
+      punctuation.append(char)
+
+  counter = Counter(punctuation)
+
+  if len(punctuation) == 0:
+    return 0 # if we only have none in it
+
+  if len(punctuation) == 1 || len(counter) == 1:
+    return 1 # if we only have 1 
+  else :
+    return 2 #we have multiple elements inside , we just get the total number of them
+
+# Made more Pythonic by implementing the suggestion from https://stackoverflow.com/questions/49078267/counting-upper-case-words-in-a-variable-in-python
+def countTotalCaps(text):
+  return (sum(map(str.isupper,text.split())))
+
+
+
 def checkForExclamation(text):
   #return 1 if there is 1 , and 2 if there are multiple uses of markers , and 0 if there is none
   result = 0
@@ -420,11 +439,11 @@ def checkForExclamation(text):
             result +=1
     
   if result == 0:
-    return 0
+    return 0 # if there is nothing at all 
   elif result == 1:
-        return 1
+        return 1 # if there is 1
   else:
-    return 2
+    return 2 # if there is more than 1
   return result
 
 
