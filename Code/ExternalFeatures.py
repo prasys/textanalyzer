@@ -56,7 +56,7 @@ STATE = 21
 DETERMINER = 'xgboost'
 embedType = 'bert' #or bert
 tagQuestions = ["isn't she","don't they","aren't we","wasn't it","didn't he","weren't we","haven't they","hasn't she","hadn't he","hadn't we","won't she","won't they","won't she","can't he","mustn't he","are we","does she","is it","was she","did they","were you","has she","has he","had we","had you","will they","will he","will she","will he","can she","must they"]
-
+metaphor = []
 
 # Take any text - and converts it into a vector. Requires the trained set (original vector) and text we pan to infer (shall be known as test)
 def vectorize(train,test):
@@ -72,6 +72,21 @@ def loadEmbeddings(filename):
 	embeddings = numpy.load(filename,allow_pickle=True)
 	print(embeddings.shape)
 	return embeddings
+
+
+def loadMetaphors(filename):
+  with open(filename) as f:
+    content = f.readlines()
+  content = [x.strip() for x in content]
+  return content
+
+# Re-WRITE THIS FUNCTION 
+def checkMetaphors(text,list_=metaphor):
+  if any(word in text for word in list_):
+    return 1 #if we have found any of the words for it
+  else: # if we cannot find any 
+    return 0 # if we have not found any of the words
+
 
 # Pandas Method to read our CSV to make it easier
 def read_csv(filepath):
@@ -181,7 +196,6 @@ def make_tagged_document(df,train):
         yield(TaggedDocument(doc,[tanda]))
 
 
-
 def calculateScoresVariousAlphaValues(predicted_data,truth_data,threshold_list=[0.00,0.05,0.1,0.15,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95,0.99,1.00]):
   for i in threshold_list:
     squarer = (lambda x: 1 if x>=i else 0)
@@ -223,78 +237,6 @@ def get_class_weights(y):
     counter = Counter(y)
     majority = max(counter.values())
     return  {cls: round(float(majority)/float(count), 2) for cls, count in counter.items()}
-
-
-# Selects a Classifier to perform the task
-def selectClassifier(weights='balanced',classifymethod='logistic'):
-  #classifier = RandomForestRegressor(n_estimators=100)
-  #clf = svm.NuSVC(kernel='rbf',decision_function_shape='ovo',probability=True)
-  #classifier = LinearSVC(random_state=21, tol=1e-4,C=1000,fit_intercept=False)
-  if 'logistic' in classifymethod:
-    #cy = LogisticRegression(fit_intercept=True, max_iter=8000,solver='newton-cg',random_state=STATE,class_weight=weights)
-    cy = LogisticRegression(C=5.0, fit_intercept=False, max_iter=100, penalty= 'l2', solver='sag', tol=0.0001)
-    return cy
-  elif 'nb' in classifymethod:
-  	cy = GaussianNB()
-  	return cy
-  elif 'xgboost' in classifymethod:
-    cy = xgb.XGBClassifier(colsample_bytree= 0.6, gamma= 2, max_depth= 5, min_child_weight= 5, n_estimators= 100, subsample= 0.8)
-    return cy
-  elif 'svm' in classifymethod:
-    cy = SVC(random_state=STATE,probability=True,C= 10, gamma= 0.001, max_iter= 500, tol= 0.001)
-    return cy
-  elif 'rf' in classifymethod:
-    cy = RandomForestClassifier(bootstrap = True, class_weight= 'balanced_subsample', criterion= 'entropy', max_depth= 8, max_features = 'log2', min_samples_split= 30, min_weight_fraction_leaf= 0.0, n_estimators = 300,random_state=STATE)
-    return cy
-  elif 'kn' in classifymethod:
-    cy = MLPClassifier(hidden_layer_sizes=50,learning_rate='adaptive',random_state=STATE,solver='lbfgs')
-    return cy
-  else:
-    return null
-
-
-def gridParameters(classifyMethod):
-  if 'rf' in classifyMethod:
-    grid_param = {
-    'n_estimators': [100, 300, 500, 800, 900,1000],
-    'criterion': ['gini', 'entropy'],
-    'max_features': ['auto','sqrt','log2'],
-    'min_samples_split' : [2,4,8,10,15,30],
-    'class_weight': ['balanced','balanced_subsample'],
-    'min_weight_fraction_leaf' : [0.0,0.1,0.3,0.5],
-    'max_depth': [1,3,5,8,10,15,20],
-    'bootstrap': [True, False]
-  }
-  elif 'logistic' in classifyMethod:
-    grid_param = {
-    'penalty' : ['l2'],
-    'tol': [1e-4, 1e-5],
-    'C': [0.5,1.0,5.0],
-    'fit_intercept': [True,False],
-    'solver': ['newton-cg','lbfgs','sag'],
-    'max_iter': [100,200]
-    }
-
-  elif 'xgboost' in classifyMethod:
-    grid_param = {
-    'n_estimators': [100,200,600,800],
-    'min_child_weight': [1, 5, 10],
-    'gamma': [0.5, 1, 1.5, 2, 5],
-    'subsample': [0.6, 0.8, 1.0],
-    'colsample_bytree': [0.6, 0.8, 1.0],
-    'max_depth': [3, 4, 5]
-  }
-
-  elif 'svm' in classifyMethod:
-    grid_param = {
-    # 0.01, 0.1, 1, 10,100,1000,3000 , 1e-4, 1e-5, 5e-4 , 5e-5,5e-10 , 500,1000,8000
-    'C' : [0.001,0.1,1,10,100,1000,3000],
-    'tol': [1e-3,1e-4,1e-5,5e-4,5e-5,5e-10],
-    'max_iter': [100,500,1000],
-    'gamma': [0.001,0.005,0.010],
-  }
-
-  return grid_param
 
 
 def getChars(s):
