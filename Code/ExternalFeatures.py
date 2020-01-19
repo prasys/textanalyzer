@@ -402,12 +402,8 @@ def checkForExclamation(text):
 if __name__ == '__main__':
   #train_classifier_3
     df = read_csv("train_classifier.csv") #Read CSV which contains everything
-
-    #Tropes Markers Detection
-    # Add the marker detection in order to get it to work 
-
-    #Morpho-Syntactic (MS) irony markers
     df['exclamation'] = df['Comment'].apply(checkForExclamation) #detect exclamation
     df['tagQuestions'] = df['Comment'].apply(tagQuestions)  # detect tag questions
-    df['interjections'] = df['Comment'].apply(getInterjections)
+    df['interjections'] = df['Comment'].apply(getInterjections) # get any interjections if there are present
+    df['punch'] = df['Comment'].apply(getPunctuation) # get the no of punctuations to be used as features 
     
