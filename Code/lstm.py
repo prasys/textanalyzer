@@ -34,7 +34,8 @@ def read_csv(filepath):
                  'Prediction' : 'uint8'
                  }
     #df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
-    df_chunk = pd.read_csv(filepath, sep=',', header=0, dtype=column_dtypes,usecols=colName,encoding = "ISO-8859-1")
+    # df_chunk = pd.read_csv(filepath, sep=',', header=0, dtype=column_dtypes,usecols=colName,encoding = "ISO-8859-1")
+    df_chunk = pd.read_csv(filepath)
     #df_chuck = df_chuck.fillna(0)
     return df_chunk
 
@@ -79,8 +80,8 @@ def read_csv2(filepath):
 
 
 
-max_features = 500
-df = read_csv("train_classifier.csv")
+max_features = 240
+df = read_csv("test_alta_dataset.csv")
 df['Comment'] = df['Comment'].str.lower()
 totalNum = df['Comment'].str.len()
 avg = np.mean(totalNum)
@@ -108,7 +109,7 @@ with tf.Session() as session:
     print(tweet_embeddings)
    
 
-    np.save('embeddings.npy',tweet_embeddings)
+    np.save('embeddings_test_alta.npy',tweet_embeddings)
 
 #Download the Model
 

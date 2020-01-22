@@ -347,12 +347,33 @@ def getInterjections(blah):
             result += 1
     return result
 
-
+#Count the Number of Hyperboles for us to do calculations
+def getHyperboles(blah,dataFrameObject=df2):
+   # blah = blah.lower()
+    doc = nlp(blah)
+    flag = False # a flag to check if there is the word is being found or not 
+    result = 0 # number of strong subjective/sentiments 
+    for word in doc:
+        if word.is_punct is False: #This is not a punctuation anyway , so we can take a look at what to do next
+          print(word)
+          checkIndex = dataFrameObject.loc[dataFrameObject['Word']==word.text] # check the index
+          print(checkIndex)
+        if checkIndex.empty:
+          result += 0 #ignore this as we did not find any positive hyperbole
+          flag = False
+        else:
+          flag = True
+        if flag is True:
+          t = dataFrameObject[dataFrameObject.Word==word.text].Subjectivity.item() #
+          if t == 'strongsubj':
+            result += 2 #strong sentiment
+          else:
+            result += 1 #weak sentiment
+    return result
 
 # Our method to count the Punctuation for it
 def getPunctuation(text): 
   punctuation = []
-
   for char in text:
     if char in string.punctuation:
       punctuation.append(char)
@@ -400,10 +421,13 @@ def checkForExclamation(text):
 
 #Main Method
 if __name__ == '__main__':
-  #train_classifier_3
-    df = read_csv("train_classifier.csv") #Read CSV which contains everything
-    df['exclamation'] = df['Comment'].apply(checkForExclamation) #detect exclamation
-    df['tagQuestions'] = df['Comment'].apply(tagQuestions)  # detect tag questions
-    df['interjections'] = df['Comment'].apply(getInterjections) # get any interjections if there are present
-    df['punch'] = df['Comment'].apply(getPunctuation) # get the no of punctuations to be used as features 
+  nlp = spacy.load("en_core_web_sm") # load the NLP toolkit
+  df = pd.read_csv("train_classifier.csv") #Read CSV which contains everything
+  df2 = pd.read_csv('MPQAHyperbole.csv')
+  df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
+  df['exclamation'] = df['Comment'].apply(checkForExclamation) #detect exclamation
+  df['tagQuestions'] = df['Comment'].apply(tagQuestions)  # detect tag questions
+  df['interjections'] = df['Comment'].apply(getInterjections) # get any interjections if there are present
+  df['punch'] = df['Comment'].apply(getPunctuation) # get the no of punctuations to be used as features
+  df['hyperbole'] = df['Comment'].apply(getHyperboles) # get the no of punctuations to be used as features 
     
