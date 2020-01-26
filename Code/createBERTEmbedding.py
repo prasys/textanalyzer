@@ -41,29 +41,13 @@ if __name__ == '__main__':
 	else:
 		print("UNDEFINED FILE NAME , PLEASE DEFINE FILE NAME TO BE PROCESSED")
 		exit() #force exit
-
-
-
 	CommentList = df['Comment'].tolist() # pick the item/column that we want to do BERT embeddings
 	print("Start BERT Client")
 	bc = BertClient()
 	output = bc.encode(CommentList) # enode the list
-	fileName = 
-	numpy.save()
-
-
-
-	#print(len(results))
-	toNumpy = []
-
-	for result in results:
-		array = numpy.asarray(result[1])
-		mean_array = numpy.mean(array,axis=0)  #convert them into numpy mean array for it
-		toNumpy.append(mean_array) 
-
-	output = numpy.array(toNumpy) # convert it to array
 	print(output.shape)
-	numpy.save('output_alta.npy', output, allow_pickle=True) #save the model so that we can use it later for classification and other tasks
+	numpy.save('output.npy', output, allow_pickle=True) #save the model so that we can use it later for classification and other tasks
+
 
 
  
