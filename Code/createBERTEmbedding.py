@@ -11,7 +11,7 @@ from string import ascii_lowercase
 #import Use_NN as nn
 import re
 import string
-from bert_embedding import BertEmbedding
+from bert_serving.client import BertClient
 import mxnet as mx
 
 
@@ -29,16 +29,30 @@ def read_csv(filepath):
 
 
 
+
+
 #Main Method
 if __name__ == '__main__':
-	df = read_csv('train_22.csv') # read CSV file that we need
+	print ('Number of arguments:', len(sys.argv), 'arguments.')
+	print ('Argument List:', str(sys.argv))
+	if len(sys.argv[2]) > 1:
+		df = read_csv(sys.argv[2])
+		CommentList = df['Comment'].tolist() # pick the item/column that we want to do BERT embeddings
+	else:
+		print("UNDEFINED FILE NAME , PLEASE DEFINE FILE NAME TO BE PROCESSED")
+		exit() #force exit
+
+
+
 	CommentList = df['Comment'].tolist() # pick the item/column that we want to do BERT embeddings
-	print(mx.context.num_gpus()) # run the GPU that we need to use 
-	print("Load GPU")
-	ctx = mx.gpu(0)
-	print("Start Embeddings")
-	bert_embedding = BertEmbedding(ctx=ctx)
-	results = bert_embedding(CommentList) # store all the token level embeddings here
+	print("Start BERT Client")
+	bc = BertClient()
+	output = bc.encode(CommentList) # enode the list
+	fileName = 
+	numpy.save()
+
+
+
 	#print(len(results))
 	toNumpy = []
 
