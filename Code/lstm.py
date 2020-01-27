@@ -24,66 +24,24 @@ import re
 ClassifyIt = True
 
 def read_csv(filepath):
-    #parseDate = ['review_date']
-    #dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
-    #colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
-    colName = ['ID','Comment','Prediction']
-    column_dtypes = {
-                 'ID': 'uint8',
-                 'Comment' : 'str',
-                 'Prediction' : 'uint8'
-                 }
-    #df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
-    # df_chunk = pd.read_csv(filepath, sep=',', header=0, dtype=column_dtypes,usecols=colName,encoding = "ISO-8859-1")
     df_chunk = pd.read_csv(filepath)
     #df_chuck = df_chuck.fillna(0)
     return df_chunk
 
-
-def predictText(text):
-	text = tokenizer.texts_to_sequences(text) # pad the whole thing
-	text = pad_sequences(text,maxlen=max_len)
-	print(text.shape)
-	sentiment = model.predict(text,batch_size=1,verbose = 2)[0]
-	#print (sentiment)
-	#print (sentiment.shape)
-#	print (sentiment)
-#	return ([sentiment])
-	#print(sentiment)
-	if(np.argmax(sentiment) == 0):
-		print("INSIDE")
-		return 0
-	elif (np.argmax(sentiment) == 1):
-		print("OUTSIDE")
-		return 1
-
-def get_class_weights(y):
-    counter = Counter(y)
-    majority = max(counter.values())
-    return  {cls: round(float(majority)/float(count), 2) for cls, count in counter.items()}
-
-def read_csv2(filepath):
-    #parseDate = ['review_date']
-    #dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
-    #colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
-    colName = ['ID','Comment']
-    column_dtypes = {
-                 'ID': 'uint8',
-                 'Comment' : 'str'
-                 }
-    #df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
-    df_chunk = pd.read_csv(filepath, sep=',', header=0, dtype=column_dtypes,usecols=colName)
-    #df_chuck = df_chuck.fillna(0)
-    return df_chunk
-
-
-
-
-
-max_features = 240
-df = read_csv("test_alta_dataset.csv")
+max_features = 240 #length of the maximum ones
+if len(sys.argv[1]) > 1:
+    df = read_csv(sys.argv[1])
+else:
+    print("Error - NO INPUT FILE GIVEN")
+    exit()
+if len(sys.argv[2]) > 1:
+    nameThingy = sys.argv[2]
+else:
+    print("Error - NO OUTPUT FILE GIVEN")
+    exit()
 df['Comment'] = df['Comment'].str.lower()
 totalNum = df['Comment'].str.len()
+# calculate the padding sequence based on the max length/average length
 avg = np.mean(totalNum)
 max_len = int(avg)
 tokenizer = Tokenizer(num_words=max_features)
@@ -93,7 +51,7 @@ X = pad_sequences(X,maxlen=max_len)
 print(X.shape[1])
 
 url = "https://tfhub.dev/google/universal-sentence-encoder-large/3"
-embed = hub.Module(url)
+embed = hub.Module(url,trainable=True)
 
 x = df['Comment']
 
@@ -108,8 +66,8 @@ with tf.Session() as session:
     print("FUCKING SHAPE IS ", tweet_embeddings.shape)
     print(tweet_embeddings)
    
-
-    np.save('embeddings_test_alta.npy',tweet_embeddings)
+    embeeddingName = nameThingy + ".npy"
+    np.save(embeeddingName,tweet_embeddings)
 
 #Download the Model
 

@@ -35,8 +35,8 @@ def read_csv(filepath):
 if __name__ == '__main__':
 	print ('Number of arguments:', len(sys.argv), 'arguments.')
 	print ('Argument List:', str(sys.argv))
-	if len(sys.argv[2]) > 1:
-		df = read_csv(sys.argv[2])
+	if len(sys.argv[1]) > 1:
+		df = read_csv(sys.argv[1])
 		CommentList = df['Comment'].tolist() # pick the item/column that we want to do BERT embeddings
 	else:
 		print("UNDEFINED FILE NAME , PLEASE DEFINE FILE NAME TO BE PROCESSED")
@@ -46,7 +46,8 @@ if __name__ == '__main__':
 	bc = BertClient()
 	output = bc.encode(CommentList) # enode the list
 	print(output.shape)
-	numpy.save('output.npy', output, allow_pickle=True) #save the model so that we can use it later for classification and other tasks
+	outputFileName = sys.argv[1] + ".npy"
+	numpy.save(outputFileName, output, allow_pickle=True) #save the model so that we can use it later for classification and other tasks
 
 
 
