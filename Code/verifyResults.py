@@ -2,7 +2,7 @@ import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning) # to surpress future warnings
 import sys
-import numpy as numpy
+import numpy as np
 import math
 #import Use_NN as nn
 import re
