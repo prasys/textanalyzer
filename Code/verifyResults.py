@@ -1,13 +1,9 @@
 import warnings
 warnings.simplefilter(action='ignore', category=FutureWarning)
 warnings.simplefilter(action='ignore', category=UserWarning) # to surpress future warnings
-import pandas as pd
 import sys
-import numpy as numpy
+import numpy as np
 import math
-import gensim
-from pprint import pprint
-from string import ascii_lowercase
 #import Use_NN as nn
 import re
 import string
