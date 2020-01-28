@@ -46,7 +46,7 @@ if __name__ == '__main__':
 	bc = BertClient()
 	output = bc.encode(CommentList) # enode the list
 	print(output.shape)
-	outputFileName = sys.argv[1] + ".npy"
+	outputFileName = sys.argv[2] + ".npy"
 	numpy.save(outputFileName, output, allow_pickle=True) #save the model so that we can use it later for classification and other tasks
 
 

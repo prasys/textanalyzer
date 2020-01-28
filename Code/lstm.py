@@ -17,11 +17,11 @@ import keras.backend as K
 from collections import Counter
 import tensorflow_hub as hub
 import tensorflow as tf
-
-
-
+import sys
 import re
-ClassifyIt = True
+
+
+# ClassifyIt = True
 
 def read_csv(filepath):
     df_chunk = pd.read_csv(filepath)
@@ -76,13 +76,13 @@ def UniversalEmbedding(x):
     return embed(tf.squeeze(tf.cast(x, tf.string)))
 
 
-Y = df['Prediction'].values
-weights = get_class_weights(Y)	
-Y = to_categorical(Y, num_classes=2, dtype='float32')
+# Y = df['Prediction'].values
+# weights = get_class_weights(Y)	
+# Y = to_categorical(Y, num_classes=2, dtype='float32')
 
-embed_dim = 50
-lstm_out = 64
-print(weights)
+# embed_dim = 50
+# lstm_out = 64
+# print(weights)
 
 
 
