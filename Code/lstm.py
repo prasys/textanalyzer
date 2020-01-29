@@ -41,7 +41,7 @@ def processEncoder(inputSequence,URL,isTrainable,nameThingy):
         K.set_session(session)
         session.run(tf.global_variables_initializer())  
         session.run(tf.tables_initializer())
-        tweet_embeddings = embed(x.tolist())
+        tweet_embeddings = embed(inputSequence.tolist())
         tweet_embeddings = tweet_embeddings.eval()
         #session.run(tweet_embeddings)
         #tweet_embeddings = np.array(tweet_embeddings)
@@ -84,25 +84,25 @@ if __name__ == '__main__':
         print("Error - NO INPUT FILE GIVEN")
         exit()
 
-    if len(sys.argv[2] > 1): # URL to download sentence Encoder 
+    if len(sys.argv[2]) > 1: # URL to download sentence Encoder 
         URLString = sys.argv[2]
     else:
         print("Error - NO INPUT FILE GIVEN")
         exit()
 
-    if len(sys.argv[3] > 1): #OUTPUT FILE NAME
+    if len(sys.argv[3]) > 1: #OUTPUT FILE NAME
         outputFileName = sys.argv[3]
     else:
         print("NO OUTPUT FILE GIVEN")
         exit()
 
-    if len(sys.argv[4] > 1): #OUTPUT FILE NAME
+    if len(sys.argv[4]) > 1: #OUTPUT FILE NAME
         columnName = sys.argv[4]
     else:
         print("NO OUTPUT FILE GIVEN")
         exit()
 
-    if len(sys.argv[5] > 1): # TO DECIDE TO TRAIN or NOT , NEED TO ADD A CATCH CLAUSE TO ALLOW IT TO CATCH EXCEPTIONS FOR IT
+    if len(sys.argv[5]) > 1: # TO DECIDE TO TRAIN or NOT , NEED TO ADD A CATCH CLAUSE TO ALLOW IT TO CATCH EXCEPTIONS FOR IT
         binaryDecider = sys.argv[5]
     else:
         binaryDecider = True
