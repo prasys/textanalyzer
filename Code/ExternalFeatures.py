@@ -7,37 +7,17 @@ import textstat
 import numpy as numpy
 import math
 import gensim
-from pprint import pprint
 from string import ascii_lowercase
 #import Use_NN as nn
 import re
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split , KFold , LeaveOneOut , LeavePOut , ShuffleSplit , StratifiedKFold , GridSearchCV
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestRegressor , VotingClassifier , RandomTreesEmbedding, ExtraTreesClassifier , RandomForestClassifier , AdaBoostClassifier , GradientBoostingClassifier
-from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.svm import LinearSVC , SVC
 from sklearn import preprocessing
-from sklearn.neural_network import MLPClassifier
-from sklearn.linear_model import TheilSenRegressor , SGDClassifier
-from sklearn.naive_bayes import GaussianNB , BernoulliNB, MultinomialNB , ComplementNB
-from sklearn.linear_model import LogisticRegressionCV , PassiveAggressiveClassifier, HuberRegressor
-from sklearn.metrics import f1_score , recall_score , accuracy_score , precision_score , jaccard_score , balanced_accuracy_score, confusion_matrix
 from mlxtend.plotting import plot_decision_regions, plot_confusion_matrix
-from matplotlib import pyplot as plt
 from sklearn.neighbors import KNeighborsClassifier , RadiusNeighborsClassifier
-import nltk
-from nltk.tokenize import RegexpTokenizer
-from gensim.models.doc2vec import Doc2Vec, TaggedDocument
-from imblearn.pipeline import make_pipeline
 from collections import Counter
-from imblearn.over_sampling import SMOTE
-from imblearn.under_sampling import NearMiss
 import string
-import xgboost as xgb
 from pushover import Client
+import spacy
 
 
 
@@ -419,9 +399,53 @@ def checkForExclamation(text):
   return result
 
 
+def cleanSpecialCharacters(text):
+    return (re.sub( '[^a-z0-9\']', ' ', text))
+
+def scrub_words(text):
+    """Basic cleaning of texts."""
+    """Taken from https://github.com/kavgan/nlp-in-practice/blob/master/text-pre-processing/Text%20Preprocessing%20Examples.ipynb """
+    
+    # remove html markup
+    text=re.sub("(<.*?>)","",text)
+    
+    #remove non-ascii and digits
+    text=re.sub("(\\W|\\d)"," ",text)
+    
+    # remove the extra spaces that we have so that it is easier for our split :) Taken from https://stackoverflow.com/questions/2077897/substitute-multiple-whitespace-with-single-whitespace-in-python
+    text=re.sub(' +', ' ', text).strip()
+    return text
+
+def LemenSpacy(text,useNLPObj=False,isFirstTime=False):
+    # if isFirstTime and useNLPObj:       
+    #     nlp = spacy.load("en_core_web_sm")
+    #     print("Load Spacy")
+    #     nlp.tokenizer = Tokenizer(nlp.vocab) #lod our customized tokenizer overwritten method
+    #     isFirstTime  = False
+    text = text.lower()
+    doc = nlp(text)
+    tokens = []
+    k = ' ff'
+    for token in doc:
+        if token.is_punct is False:
+            if token.orth_ == 've': #special handling case
+                tokens.append("'ve")
+            elif token.orth_ == "  ":
+                tokens.append(" ")
+            else:
+                if token.lemma_ == '-PRON-':
+                    tokens.append(token.orth_)
+                    k.join(str(token.orth_))
+                else:
+                    tokens.append(token.lemma_)
+                    k.join(str(token.lemma_))
+    return (' '.join(tokens)) 
+    #return tokens
+
+
 #Main Method
 if __name__ == '__main__':
-  nlp = spacy.load("en_core_web_sm") # load the NLP toolkit
+  nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software 
   df = pd.read_csv("train_classifier.csv") #Read CSV which contains everything
   df2 = pd.read_csv('MPQAHyperbole.csv')
   df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
@@ -429,5 +453,6 @@ if __name__ == '__main__':
   df['tagQuestions'] = df['Comment'].apply(tagQuestions)  # detect tag questions
   df['interjections'] = df['Comment'].apply(getInterjections) # get any interjections if there are present
   df['punch'] = df['Comment'].apply(getPunctuation) # get the no of punctuations to be used as features
-  df['hyperbole'] = df['Comment'].apply(getHyperboles) # get the no of punctuations to be used as features 
+  df['hyperbole'] = df['Comment'].apply(getHyperboles) # get the no of punctuations to be used as features
+
     
