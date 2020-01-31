@@ -253,6 +253,8 @@ if __name__ == '__main__':
   df['punch_comment'] = df['Comment'].apply(getPunctuation) # get the no of punctuations to be used as features
   df['hyperbole_comment'] = df['Comment'].apply(getHyperboles) # get the no of punctuations to be used as features
   df['quotation_comment'] = df['Comment'].apply(detectQuotationMarks) # adding to detect qutation marks
+  df['totalCaps_comment'] = df['Comment'].apply(countTotalCaps) # adding support to count total number of CAPS
+  df['noOfWords_comment'] = df['Comment'].apply(countOfWords)
 
   ## FOR THE PARENT COMMENTS
 
@@ -261,5 +263,8 @@ if __name__ == '__main__':
   df['interjections_parent'] = df['Comment'].apply(getInterjections) # get any interjections if there are present
   df['punch_parent'] = df['Comment'].apply(getPunctuation) # get the no of punctuations to be used as features
   df['hyperbole_parent'] = df['Comment'].apply(getHyperboles) # get the no of punctuations to be used as features
+  df['quotation_parent'] = df['Comment'].apply(detectQuotationMarks) # adding to detect qutation marks
+  df['totalCaps_parent'] = df['Comment'].apply(countTotalCaps) # adding support to count total number of CAPS
+  df['noOfWords_parent'] = df['Comment'].apply(countOfWords) # adding support for the nof of parent comments
 
     
