@@ -16,10 +16,8 @@ from mlxtend.plotting import plot_decision_regions, plot_confusion_matrix
 from sklearn.neighbors import KNeighborsClassifier , RadiusNeighborsClassifier
 from collections import Counter
 import string
-from pushover import Client
 import spacy
-
-
+from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 removeUnWanted = re.compile('[\W_]+') #strip off the damn characters
@@ -232,9 +230,16 @@ def LemenSpacy(text,useNLPObj=False,isFirstTime=False):
     #return tokens
 
 
+def sentiment_analyzer_scores(sentence):
+    score = analyser.polarity_scores(sentence)
+    #print(score["compound"])
+    return score['compound']
+    #print("{:-<40} {}".format(sentence, str(score)))
+
 #Main Method
 if __name__ == '__main__':
-  nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software 
+  nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software
+  analyser = SentimentIntensityAnalyzer() # start the sentiment analysis software 
   df = pd.read_csv("train_classifier.csv") #Read CSV which contains everything
   df2 = pd.read_csv('MPQAHyperbole.csv')
   df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
