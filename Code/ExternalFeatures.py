@@ -233,11 +233,10 @@ def sentiment_analyzer_scores(sentence):
 
 #Main Method
 if __name__ == '__main__':
-  print ("The arguments are: " , str(sys.argv))
   nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software
-  analyser = SentimentIntensityAnalyzer() # start the sentiment analysis software 
-  df = pd.read_csv("train_classifier.csv") #Read CSV which contains everything
-  df2 = pd.read_csv('MPQAHyperbole.csv')
+  analyser = SentimentIntensityAnalyzer()
+  df = pd.read_csv("train_classifier.csv") #  Read the Classifier Software
+  df2 = pd.read_csv('MPQAHyperbole.csv') # add the path to the files , so it can be read properly 
   df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
 
 
@@ -247,7 +246,6 @@ if __name__ == '__main__':
 
 
   ## FOR THE COMMENTS 
-  df['words_comment'] = df['Comment'].apply()
   df['exclamation_comment'] = df['Comment'].apply(checkForExclamation) #detect exclamation
   df['tagQuestions_comment'] = df['Comment'].apply(tagQuestions)  # detect tag questions
   df['interjections_comment'] = df['Comment'].apply(getInterjections) # get any interjections if there are present
@@ -255,7 +253,7 @@ if __name__ == '__main__':
   df['hyperbole_comment'] = df['Comment'].apply(getHyperboles) # get the no of punctuations to be used as features
   df['quotation_comment'] = df['Comment'].apply(detectQuotationMarks) # adding to detect qutation marks
   df['totalCaps_comment'] = df['Comment'].apply(countTotalCaps) # adding support to count total number of CAPS
-  df['noOfWords_comment'] = df['Comment'].apply(countOfWords)
+  df['noOfWords_comment'] = df['Comment'].apply(countOfWords) #count no of words
 
   ## FOR THE PARENT COMMENTS
 
