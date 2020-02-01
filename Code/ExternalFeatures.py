@@ -46,7 +46,7 @@ def read_csv(filepath):
     #dateparse = lambda x: pd.datetime.strptime(x, '%Y-%m-%d')
     #colName = ['customer_id','product_category', 'review_id', 'star_rating','helpful_votes','total_votes','vine','verified_purchase','review_body','review_date']
     #df_chunk = pd.read_csv(filepath, sep='\t', header=0, chunksize=500000, error_bad_lines=False,parse_dates=parseDate, dtype=column_dtypes, usecols=colName, date_parser=dateparse)
-    df_chunk = pd.read_csv(filepath, sep=',', header=0, dtype=column_dtypes,usecols=colName,encoding = "ISO-8859-1")
+    df_chunk = pd.read_csv(filepath, sep=',', header=0)
     #df_chuck = df_chuck.fillna(0)
     return df_chunk
 
@@ -64,10 +64,10 @@ def get_good_tokens(sentence):
     return removed_punctation
 
 # Converts to POS Tags that can be used for other stuff
-def tag(sent):
-    words=nltk.word_tokenize(sent)
-    tagged=nltk.pos_tag(words)
-    return tagged
+# def tag(sent):
+#     words=nltk.word_tokenize(sent)
+#     tagged=nltk.pos_tag(words)
+#     return tagged
 
 def tagQuestions(text,list_=tagQuestions):
   if any(word in text for word in list_):
@@ -100,13 +100,6 @@ def checkForNouns(text,method='None'):
             return abs(counter2/counter)
         else:
             return counter2
-
-
-#A simple method which basically takes in the tokenized_sents and the tag and starts do it. 
-def make_tagged_document(df,train):
-    #  taggeddocs = []
-    for doc, tanda in zip(df['tokenized_sents'], train):
-        yield(TaggedDocument(doc,[tanda]))
 
 
 #Calculates the amount of interjections 
@@ -155,7 +148,7 @@ def getPunctuation(text):
   if len(punctuation) == 0:
     return 0 # if we only have none in it
 
-  if len(punctuation) == 1 || len(counter) == 1:
+  if len(punctuation) == 1 or len(counter) == 1:
     return 1 # if we only have 1 
   else :
     return 2 #we have multiple elements inside , we just get the total number of them
@@ -240,6 +233,7 @@ def sentiment_analyzer_scores(sentence):
 
 #Main Method
 if __name__ == '__main__':
+  print ("The arguments are: " , str(sys.argv))
   nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software
   analyser = SentimentIntensityAnalyzer() # start the sentiment analysis software 
   df = pd.read_csv("train_classifier.csv") #Read CSV which contains everything

@@ -1,5 +1,6 @@
 {
     "python.linting.pylintEnabled": true,
     "python.linting.enabled": true,
-    "python.pythonPath": "/home/cshome/p/pradeesh/anaconda3/envs/amazon/bin/python"
+    "python.pythonPath": "/home/cshome/p/pradeesh/anaconda3/envs/amazon/bin/python",
+    "python.dataScience.jupyterServerURI": "https://localhost:8088"
 }
