@@ -19,6 +19,8 @@ import string
 import spacy
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
+#test
+
 
 removeUnWanted = re.compile('[\W_]+') #strip off the damn characters
 tagQuestions = ["isn't she","don't they","aren't we","wasn't it","didn't he","weren't we","haven't they","hasn't she","hadn't he","hadn't we","won't she","won't they","won't she","can't he","mustn't he","are we","does she","is it","was she","did they","were you","has she","has he","had we","had you","will they","will he","will she","will he","can she","must they"]
