@@ -23,7 +23,7 @@ from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 
 removeUnWanted = re.compile('[\W_]+') #strip off the damn characters
-tagQuestions = ["isn't she","don't they","aren't we","wasn't it","didn't he","weren't we","haven't they","hasn't she","hadn't he","hadn't we","won't she","won't they","won't she","can't he","mustn't he","are we","does she","is it","was she","did they","were you","has she","has he","had we","had you","will they","will he","will she","will he","can she","must they"]
+tagQues = ["isn't she","don't they","aren't we","wasn't it","didn't he","weren't we","haven't they","hasn't she","hadn't he","hadn't we","won't she","won't they","won't she","can't he","mustn't he","are we","does she","is it","was she","did they","were you","has she","has he","had we","had you","will they","will he","will she","will he","can she","must they"]
 metaphor = []
 
 def loadMetaphors(filename):
@@ -69,7 +69,7 @@ def get_good_tokens(sentence):
 #     tagged=nltk.pos_tag(words)
 #     return tagged
 
-def tagQuestions(text,list_=tagQuestions):
+def tagQuestions(text,list_=tagQues):
   if any(word in text for word in list_):
     return 1
   else: # if we cannot find any 
@@ -77,29 +77,29 @@ def tagQuestions(text,list_=tagQuestions):
 
 #Checks for Nouns , To Implement the method found in Cindy Chung's Physc Paper (Search for Cindy Chung and James Pennebaker and cite here)
 
-def checkForNouns(text,method='None'):
-    counter = 0
-    counter2 = 0
-    if "aa" in text: #Dummy variable to inform that it is outside , so we dont' track them 
-        return counter
-    else:
-        wrb = tag(text)
-        index = 0
-        for row  in wrb:
-            POSTag = wrb[index][1]
-          #  print(POSTag)
-            if (POSTag in "IN") or (POSTag in "PRP") or (POSTag in "DT") or (POSTag in "CC") or (POSTag in "VB") or (POSTag in "VB") or (POSTag in "PRP$") or (POSTag is "RB"):
-                counter = counter+1
-            else:
-                counter2 = counter2+1
+# def checkForNouns(text,method='None'):
+#     counter = 0
+#     counter2 = 0
+#     if "aa" in text: #Dummy variable to inform that it is outside , so we dont' track them 
+#         return counter
+#     else:
+#         wrb = tag(text)
+#         index = 0
+#         for row  in wrb:
+#             POSTag = wrb[index][1]
+#           #  print(POSTag)
+#             if (POSTag in "IN") or (POSTag in "PRP") or (POSTag in "DT") or (POSTag in "CC") or (POSTag in "VB") or (POSTag in "VB") or (POSTag in "PRP$") or (POSTag is "RB"):
+#                 counter = counter+1
+#             else:
+#                 counter2 = counter2+1
                 
-            index = index + 1
-        if "function" in method:
-            return counter
-        elif "ratio" in method:
-            return abs(counter2/counter)
-        else:
-            return counter2
+#             index = index + 1
+#         if "function" in method:
+#             return counter
+#         elif "ratio" in method:
+#             return abs(counter2/counter)
+#         else:
+#             return counter2
 
 
 #Calculates the amount of interjections 
@@ -113,7 +113,7 @@ def getInterjections(blah):
     return result
 
 #Count the Number of Hyperboles for us to do calculations
-def getHyperboles(blah,dataFrameObject=df2):
+def getHyperboles(blah,dataFrameObject):
    # blah = blah.lower()
     doc = nlp(blah)
     flag = False # a flag to check if there is the word is being found or not 
@@ -122,14 +122,17 @@ def getHyperboles(blah,dataFrameObject=df2):
         if word.is_punct is False: #This is not a punctuation anyway , so we can take a look at what to do next
           print(word)
           checkIndex = dataFrameObject.loc[dataFrameObject['Word']==word.text] # check the index
-          print(checkIndex)
         if checkIndex.empty:
           result += 0 #ignore this as we did not find any positive hyperbole
           flag = False
         else:
           flag = True
         if flag is True:
-          t = dataFrameObject[dataFrameObject.Word==word.text].Subjectivity.item() #
+          if len(checkIndex) == 1: # if there is only one item for it
+            t = dataFrameObject[dataFrameObject.Word==word.text].Subjectivity.item()
+          else: 
+            t = dataFrameObject[dataFrameObject.Word==word.text].iloc[0] #
+            t = t['Subjectivity']
           if t == 'strongsubj':
             result += 2 #strong sentiment
           else:
@@ -235,22 +238,20 @@ def sentiment_analyzer_scores(sentence):
 if __name__ == '__main__':
   nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software
   analyser = SentimentIntensityAnalyzer()
-  df = pd.read_csv("train_classifier.csv") #  Read the Classifier Software
-  df2 = pd.read_csv('MPQAHyperbole.csv') # add the path to the files , so it can be read properly 
-  df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
+  df = pd.read_csv('/data/pradeesh/data/test_alta_dataset.csv') #  Read the Classifier Software
+  df2 = pd.read_csv('/data/pradeesh/data/MPQAHyperbole.csv') # add the path to the files , so it can be read properly
+  #df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
 
 
   # LEMENTIZE the parents comment
   df['lemen_parent'] = df['Parent'].apply(LemenSpacy)
 
-
-
   ## FOR THE COMMENTS 
   df['exclamation_comment'] = df['Comment'].apply(checkForExclamation) #detect exclamation
-  df['tagQuestions_comment'] = df['Comment'].apply(tagQuestions)  # detect tag questions
+  # df['tagQuestions_comment'] = df['Comment'].apply(tagQuestions)  # detect tag questions
   df['interjections_comment'] = df['Comment'].apply(getInterjections) # get any interjections if there are present
   df['punch_comment'] = df['Comment'].apply(getPunctuation) # get the no of punctuations to be used as features
-  df['hyperbole_comment'] = df['Comment'].apply(getHyperboles) # get the no of punctuations to be used as features
+  df['hyperbole_comment'] = df['Comment'].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
   df['quotation_comment'] = df['Comment'].apply(detectQuotationMarks) # adding to detect qutation marks
   df['totalCaps_comment'] = df['Comment'].apply(countTotalCaps) # adding support to count total number of CAPS
   df['noOfWords_comment'] = df['Comment'].apply(countOfWords) #count no of words
@@ -265,5 +266,8 @@ if __name__ == '__main__':
   df['quotation_parent'] = df['Comment'].apply(detectQuotationMarks) # adding to detect qutation marks
   df['totalCaps_parent'] = df['Comment'].apply(countTotalCaps) # adding support to count total number of CAPS
   df['noOfWords_parent'] = df['Comment'].apply(countOfWords) # adding support for the nof of parent comments
+
+
+  print(df)
 
     
