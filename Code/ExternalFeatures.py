@@ -250,7 +250,7 @@ def sentiment_analyzer_scores(sentence):
 #Main Method
 if __name__ == '__main__':
   nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software
-  commentChild = 'Original ' # name of the field for child
+  commentChild = 'Original' # name of the field for child
   commentParent = 'Parent'
   analyser = SentimentIntensityAnalyzer()
   df = pd.read_csv('/data/pradeesh/data/test_alta_dataset.csv') #  Read the Classifier Software
@@ -259,8 +259,8 @@ if __name__ == '__main__':
 
 
   # LEMENTIZE the parents comment
-  df['lemen_parent'] = df['Parent'].apply(LemenSpacy)
-
+  # df['lemen_parent'] = df['Parent'].apply(LemenSpacy)
+  df[commentChild] = df[commentChild].astype(str)
   ## FOR THE COMMENTS 
   df['exclamation_comment'] = df[commentChild].apply(checkForExclamation) #detect exclamation
   df['tagQuestions_comment'] = df[commentParent].apply(tagQuestions)  # detect tag questions
@@ -268,6 +268,8 @@ if __name__ == '__main__':
   df['punch_comment'] = df[commentChild].apply(getPunctuation) # get the no of punctuations to be used as features
   df['quotation_comment'] = df[commentChild].apply(detectQuotationMarks) # adding to detect qutation marks
   df['totalCaps_comment'] = df[commentChild].apply(countTotalCaps) # adding support to count total number of CAPS
+  print("processing sentiment comment for child")
+  df['sentiment_comment'] = df[commentChild].apply(sentiment_analyzer_scores) #adding support to analyze the sentiment of the score 
   #clean now
 
   df['noOfWords_comment'] = df[commentChild].apply(countOfWords) #count no of words
@@ -277,14 +279,25 @@ if __name__ == '__main__':
 
   ## FOR THE PARENT COMMENTS
 
-  # df['exclamation_parent'] = df[commentParent].apply(checkForExclamation) #detect exclamation
-  # df['tagQuestions_parent'] = df[commentParent].apply(tagQuestions)  # detect tag questions
-  # df['interjections_parent'] = df[commentParent].apply(getInterjections) # get any interjections if there are present
-  # df['punch_parent'] = df[commentParent].apply(getPunctuation) # get the no of punctuations to be used as features
-  # df['hyperbole_parent'] = df[commentParent].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
-  # df['quotation_parent'] = df[commentParent].apply(detectQuotationMarks) # adding to detect qutation marks
-  # df['totalCaps_parent'] = df[commentParent].apply(countTotalCaps) # adding support to count total number of CAPS
-  # df['noOfWords_parent'] = df[commentParent].apply(countOfWords) # adding support for the nof of parent comments
+  df['exclamation_parent'] = df[commentParent].apply(checkForExclamation) #detect exclamation
+  df['tagQuestions_parent'] = df[commentParent].apply(tagQuestions)  # detect tag questions
+  df['interjections_parent'] = df[commentParent].apply(getInterjections) # get any interjections if there are present
+  df['punch_parent'] = df[commentParent].apply(getPunctuation) # get the no of punctuations to be used as features
+  df['quotation_parent'] = df[commentParent].apply(detectQuotationMarks) # adding to detect qutation marks
+  df['totalCaps_parent'] = df[commentParent].apply(countTotalCaps) # adding support to count total number of CAPS
+  df['noOfWords_parent'] = df[commentParent].apply(countOfWords) # adding support for the nof of parent comments
+  print("processing sentiment scores for parent")
+  df['sentiment_comment'] = df[commentChild].apply(sentiment_analyzer_scores) #adding support to analyze the sentiment of the score 
+
+
+  # apply the filter for it to be computed and then to calculate the features
+  df[commentParent] = df[commentParent].astype(str)
+  df[commentParent] = df[commentParent].apply(LemenSpacy)
+  df[commentParent] = df[commentParent].apply(removePunctuation)
+
+
+  df['hyperbole_parent'] = df[commentParent].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
+
 
 
   df.to_csv('/data/pradeesh/data/test_processed.csv')
