@@ -12,12 +12,5 @@
             "console": "integratedTerminal"
         }
 
-        {
-            "name": "Python: Current File #2",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
-        }
     ]
 }

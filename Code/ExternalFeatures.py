@@ -17,6 +17,7 @@ from sklearn.neighbors import KNeighborsClassifier , RadiusNeighborsClassifier
 from collections import Counter
 import string
 import spacy
+import string 
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 #test22
@@ -130,7 +131,7 @@ def getHyperboles(blah,dataFrameObject):
           flag = True
         if len(checkIndex) == 0:
           flag = False
-        if word is "'":
+        if word is "'" :
            flag = False
         if flag is True:
           if len(checkIndex) == 1: # if there is only one item for it
@@ -168,6 +169,9 @@ def getPunctuation(text):
 # Made more Pythonic by implementing the suggestion from https://stackoverflow.com/questions/49078267/counting-upper-case-words-in-a-variable-in-python
 def countTotalCaps(text):
   return (sum(map(str.isupper,text.split())))
+
+def removePunctuation(text):
+  return (text.translate((str.maketrans('', '', string.punctuation))))
 
 # checks for the quotation marks if they are present in the system and would return the amount that is present 
 
@@ -246,7 +250,7 @@ def sentiment_analyzer_scores(sentence):
 #Main Method
 if __name__ == '__main__':
   nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software
-  commentChild = 'Comment' # name of the field for child
+  commentChild = 'Original ' # name of the field for child
   commentParent = 'Parent'
   analyser = SentimentIntensityAnalyzer()
   df = pd.read_csv('/data/pradeesh/data/test_alta_dataset.csv') #  Read the Classifier Software
@@ -256,29 +260,31 @@ if __name__ == '__main__':
 
   # LEMENTIZE the parents comment
   df['lemen_parent'] = df['Parent'].apply(LemenSpacy)
-  df[commentChild] = df[commentChild].apply(cleanSpecialCharacters)
-  df[commentChild] = df[commentChild].astype(str)
 
   ## FOR THE COMMENTS 
   df['exclamation_comment'] = df[commentChild].apply(checkForExclamation) #detect exclamation
   df['tagQuestions_comment'] = df[commentParent].apply(tagQuestions)  # detect tag questions
   df['interjections_comment'] = df[commentChild].apply(getInterjections) # get any interjections if there are present
   df['punch_comment'] = df[commentChild].apply(getPunctuation) # get the no of punctuations to be used as features
-  df['hyperbole_comment'] = df[commentChild].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
   df['quotation_comment'] = df[commentChild].apply(detectQuotationMarks) # adding to detect qutation marks
   df['totalCaps_comment'] = df[commentChild].apply(countTotalCaps) # adding support to count total number of CAPS
+  #clean now
+
   df['noOfWords_comment'] = df[commentChild].apply(countOfWords) #count no of words
+  df[commentChild] = df[commentChild].apply(removePunctuation)
+  df[commentChild] = df[commentChild].astype(str)
+  df['hyperbole_comment'] = df[commentChild].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
 
   ## FOR THE PARENT COMMENTS
 
-  df['exclamation_parent'] = df[commentParent].apply(checkForExclamation) #detect exclamation
-  df['tagQuestions_parent'] = df[commentParent].apply(tagQuestions)  # detect tag questions
-  df['interjections_parent'] = df[commentParent].apply(getInterjections) # get any interjections if there are present
-  df['punch_parent'] = df[commentParent].apply(getPunctuation) # get the no of punctuations to be used as features
-  df['hyperbole_parent'] = df[commentParent].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
-  df['quotation_parent'] = df[commentParent].apply(detectQuotationMarks) # adding to detect qutation marks
-  df['totalCaps_parent'] = df[commentParent].apply(countTotalCaps) # adding support to count total number of CAPS
-  df['noOfWords_parent'] = df[commentParent].apply(countOfWords) # adding support for the nof of parent comments
+  # df['exclamation_parent'] = df[commentParent].apply(checkForExclamation) #detect exclamation
+  # df['tagQuestions_parent'] = df[commentParent].apply(tagQuestions)  # detect tag questions
+  # df['interjections_parent'] = df[commentParent].apply(getInterjections) # get any interjections if there are present
+  # df['punch_parent'] = df[commentParent].apply(getPunctuation) # get the no of punctuations to be used as features
+  # df['hyperbole_parent'] = df[commentParent].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
+  # df['quotation_parent'] = df[commentParent].apply(detectQuotationMarks) # adding to detect qutation marks
+  # df['totalCaps_parent'] = df[commentParent].apply(countTotalCaps) # adding support to count total number of CAPS
+  # df['noOfWords_parent'] = df[commentParent].apply(countOfWords) # adding support for the nof of parent comments
 
 
   df.to_csv('/data/pradeesh/data/test_processed.csv')
