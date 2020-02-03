@@ -71,6 +71,7 @@ def get_good_tokens(sentence):
 #     return tagged
 
 def tagQuestions(text,list_=tagQues):
+  text = str(text)
   if any(word in text for word in list_):
     return 1
   else: # if we cannot find any 
@@ -184,6 +185,7 @@ def detectQuotationMarks(text):
 
 
 def checkForExclamation(text):
+  text = str(text)
   #return 1 if there is 1 , and 2 if there are multiple uses of markers , and 0 if there is none
   result = 0
   for char in text:
@@ -253,7 +255,7 @@ if __name__ == '__main__':
   commentChild = 'Original' # name of the field for child
   commentParent = 'Parent'
   analyser = SentimentIntensityAnalyzer()
-  df = pd.read_csv('/data/pradeesh/data/test_alta_dataset.csv') #  Read the Classifier Software
+  df = pd.read_csv('/data/pradeesh/data/train_alta_dataset.csv') #  Read the Classifier Software
   df2 = pd.read_csv('/data/pradeesh/data/MPQAHyperbole.csv') # add the path to the files , so it can be read properly
   #df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
 
@@ -287,7 +289,7 @@ if __name__ == '__main__':
   df['totalCaps_parent'] = df[commentParent].apply(countTotalCaps) # adding support to count total number of CAPS
   df['noOfWords_parent'] = df[commentParent].apply(countOfWords) # adding support for the nof of parent comments
   print("processing sentiment scores for parent")
-  df['sentiment_parent'] = df[commentChild].apply(sentiment_analyzer_scores) #adding support to analyze the sentiment of the score 
+  df['sentiment_parent'] = df[commentParent].apply(sentiment_analyzer_scores) #adding support to analyze the sentiment of the score 
 
 
   # apply the filter for it to be computed and then to calculate the features
@@ -300,7 +302,7 @@ if __name__ == '__main__':
 
 
 
-  df.to_csv('/data/pradeesh/data/test_processed.csv')
+  df.to_csv('/data/pradeesh/data/train_processed.csv')
 
 
   print(df)
