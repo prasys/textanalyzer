@@ -112,6 +112,7 @@ def getInterjections(blah):
             result += 1
     return result
 
+
 #Count the Number of Hyperboles for us to do calculations
 def getHyperboles(blah,dataFrameObject):
    # blah = blah.lower()
@@ -127,16 +128,24 @@ def getHyperboles(blah,dataFrameObject):
           flag = False
         else:
           flag = True
+        if len(checkIndex) == 0:
+          flag = False
+        if word is "'":
+           flag = False
         if flag is True:
           if len(checkIndex) == 1: # if there is only one item for it
-            t = dataFrameObject[dataFrameObject.Word==word.text].Subjectivity.item()
+            t = dataFrameObject[dataFrameObject.Word==word.text].Subjectivity.item() 
+            # print("length is",(t))
+            # print("This gets executed !")
           else: 
             t = dataFrameObject[dataFrameObject.Word==word.text].iloc[0] #
             t = t['Subjectivity']
+            # print("length is",(t))
+            # print("The other one gets executed !")
           if t == 'strongsubj':
             result += 2 #strong sentiment
           else:
-            result += 1 #weak sentiment
+            result += 1 #weak sentiment or neutral
     return result
 
 # Our method to count the Punctuation for it
@@ -237,8 +246,8 @@ def sentiment_analyzer_scores(sentence):
 #Main Method
 if __name__ == '__main__':
   nlp = spacy.load("en_core_web_sm") # load the NLP toolkit software
-  commentChild = 'Cleaned' # name of the field for child
-  commentParent = 'lemen_parent'
+  commentChild = 'Comment' # name of the field for child
+  commentParent = 'Parent'
   analyser = SentimentIntensityAnalyzer()
   df = pd.read_csv('/data/pradeesh/data/test_alta_dataset.csv') #  Read the Classifier Software
   df2 = pd.read_csv('/data/pradeesh/data/MPQAHyperbole.csv') # add the path to the files , so it can be read properly
@@ -247,10 +256,12 @@ if __name__ == '__main__':
 
   # LEMENTIZE the parents comment
   df['lemen_parent'] = df['Parent'].apply(LemenSpacy)
+  df[commentChild] = df[commentChild].apply(cleanSpecialCharacters)
+  df[commentChild] = df[commentChild].astype(str)
 
   ## FOR THE COMMENTS 
   df['exclamation_comment'] = df[commentChild].apply(checkForExclamation) #detect exclamation
-  # df['tagQuestions_comment'] = df[commentParent].apply(tagQuestions)  # detect tag questions
+  df['tagQuestions_comment'] = df[commentParent].apply(tagQuestions)  # detect tag questions
   df['interjections_comment'] = df[commentChild].apply(getInterjections) # get any interjections if there are present
   df['punch_comment'] = df[commentChild].apply(getPunctuation) # get the no of punctuations to be used as features
   df['hyperbole_comment'] = df[commentChild].apply(getHyperboles,dataFrameObject=df2) # get the no of punctuations to be used as features
