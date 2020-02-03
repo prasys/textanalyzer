@@ -287,7 +287,7 @@ if __name__ == '__main__':
   df['totalCaps_parent'] = df[commentParent].apply(countTotalCaps) # adding support to count total number of CAPS
   df['noOfWords_parent'] = df[commentParent].apply(countOfWords) # adding support for the nof of parent comments
   print("processing sentiment scores for parent")
-  df['sentiment_comment'] = df[commentChild].apply(sentiment_analyzer_scores) #adding support to analyze the sentiment of the score 
+  df['sentiment_parent'] = df[commentChild].apply(sentiment_analyzer_scores) #adding support to analyze the sentiment of the score 
 
 
   # apply the filter for it to be computed and then to calculate the features
