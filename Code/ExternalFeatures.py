@@ -52,6 +52,7 @@ def read_csv(filepath):
     return df_chunk
 
 def countOfWords(text):
+    text = str(text)
     count = len(re.findall(r'\w+', text))
     return count
 
@@ -107,6 +108,7 @@ def tagQuestions(text,list_=tagQues):
 #Calculates the amount of interjections 
 def getInterjections(blah):
    # blah = blah.lower()
+    blah = str(blah)
     doc = nlp(blah)
     result = 0
     for word in doc:
@@ -151,7 +153,8 @@ def getHyperboles(blah,dataFrameObject):
     return result
 
 # Our method to count the Punctuation for it
-def getPunctuation(text): 
+def getPunctuation(text):
+  text = str(text) 
   punctuation = []
   for char in text:
     if char in string.punctuation:
@@ -169,7 +172,14 @@ def getPunctuation(text):
 
 # Made more Pythonic by implementing the suggestion from https://stackoverflow.com/questions/49078267/counting-upper-case-words-in-a-variable-in-python
 def countTotalCaps(text):
-  return (sum(map(str.isupper,text.split())))
+  text = str(text)
+  count = (sum(map(str.isupper,text.split())))
+  if count == 0:
+    return 0
+  elif count == 1:
+    return 1
+  else:
+    return 2
 
 def removePunctuation(text):
   return (text.translate((str.maketrans('', '', string.punctuation))))
@@ -177,6 +187,7 @@ def removePunctuation(text):
 # checks for the quotation marks if they are present in the system and would return the amount that is present 
 
 def detectQuotationMarks(text):
+  text = str(text)
   startIndex = text.find('\"')
   if startIndex == -1:
     return 0 #if we did not get the quotation mark for it
@@ -244,6 +255,7 @@ def LemenSpacy(text,useNLPObj=False,isFirstTime=False):
 
 
 def sentiment_analyzer_scores(sentence):
+    sentence = str(sentence)
     score = analyser.polarity_scores(sentence)
     #print(score["compound"])
     return score['compound']
@@ -255,7 +267,7 @@ if __name__ == '__main__':
   commentChild = 'Original' # name of the field for child
   commentParent = 'Parent'
   analyser = SentimentIntensityAnalyzer()
-  df = pd.read_csv('/data/pradeesh/data/train_alta_dataset.csv') #  Read the Classifier Software
+  df = pd.read_csv('/data/pradeesh/data/test_alta_dataset.csv') #  Read the Classifier Software
   df2 = pd.read_csv('/data/pradeesh/data/MPQAHyperbole.csv') # add the path to the files , so it can be read properly
   #df2.drop(df.filter(regex="Unname"),axis=1, inplace=True) #do some clean ups
 
@@ -302,7 +314,7 @@ if __name__ == '__main__':
 
 
 
-  df.to_csv('/data/pradeesh/data/train_processed.csv')
+  df.to_csv('/data/pradeesh/data/test_processed_c2.csv')
 
 
   print(df)
