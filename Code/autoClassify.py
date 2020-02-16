@@ -3,6 +3,7 @@ import sklearn.metrics
 import pandas as pd
 import scipy
 import numpy as np
+import sys
 
 def loadTheFiles(trainX,trainY,testX,testY):
 	trainX = np.load(trainX,allow_pickle=True) # load train file
@@ -13,7 +14,7 @@ def loadTheFiles(trainX,trainY,testX,testY):
 
 
 def doThePrediction(testX,trainX,trainY):
-	automl = autosklearn.classification.autoSklearnClassifier()
+	automl = autosklearn.classification.AutoSklearnClassifier()
 	automl.fit(trainX,trainY)
 	predictedValue = automl.predict(testX)
 	return predictedValue
