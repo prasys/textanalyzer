@@ -1,0 +1,108 @@
+train_albert_base.npy
+2 10 11 129
+Accuracy score 0.8618421052631579
+F1 score 0.16
+Recall score 0.16666666666666666
+Percision score 0.15384615384615385
+Positive Score 0.15384615384615385
+Negative Score 0.9280575539568345
+END
+train_albert_large.npy
+2 25 11 114
+Accuracy score 0.7631578947368421
+F1 score 0.1
+Recall score 0.07407407407407407
+Percision score 0.15384615384615385
+Positive Score 0.15384615384615385
+Negative Score 0.8201438848920863
+END
+train_albert_xlarge.npy
+1 22 12 117
+Accuracy score 0.7763157894736842
+F1 score 0.05555555555555555
+Recall score 0.043478260869565216
+Percision score 0.07692307692307693
+Positive Score 0.07692307692307693
+Negative Score 0.841726618705036
+END
+train_bert_base_cased.npy
+1 4 12 135
+Accuracy score 0.8947368421052632
+F1 score 0.1111111111111111
+Recall score 0.2
+Percision score 0.07692307692307693
+Positive Score 0.07692307692307693
+Negative Score 0.9712230215827338
+END
+train_bert_base_uncased.npy
+2 3 11 136
+Accuracy score 0.9078947368421053
+F1 score 0.2222222222222222
+Recall score 0.4
+Percision score 0.15384615384615385
+Positive Score 0.15384615384615385
+Negative Score 0.9784172661870504
+END
+train_bert_large_cased.npy
+4 21 9 118
+Accuracy score 0.8026315789473685
+F1 score 0.2105263157894737
+Recall score 0.16
+Percision score 0.3076923076923077
+Positive Score 0.3076923076923077
+Negative Score 0.8489208633093526
+END
+train_bert_large_uncased.npy
+5 24 8 115
+Accuracy score 0.7894736842105263
+F1 score 0.23809523809523808
+Recall score 0.1724137931034483
+Percision score 0.38461538461538464
+Positive Score 0.38461538461538464
+Negative Score 0.8273381294964028
+END
+train_use_elm.npy
+3 25 10 114
+Accuracy score 0.7697368421052632
+F1 score 0.14634146341463414
+Recall score 0.10714285714285714
+Percision score 0.23076923076923078
+Positive Score 0.23076923076923078
+Negative Score 0.8201438848920863
+END
+train_use_transformer_large.npy
+1 8 12 131
+Accuracy score 0.868421052631579
+F1 score 0.09090909090909093
+Recall score 0.1111111111111111
+Percision score 0.07692307692307693
+Positive Score 0.07692307692307693
+Negative Score 0.9424460431654677
+END
+train_google_news_300.npy
+5 35 8 104
+Accuracy score 0.7171052631578947
+F1 score 0.18867924528301888
+Recall score 0.125
+Percision score 0.38461538461538464
+Positive Score 0.38461538461538464
+Negative Score 0.7482014388489209
+END
+train_twitter_200.npy
+3 16 10 123
+Accuracy score 0.8289473684210527
+F1 score 0.18749999999999997
+Recall score 0.15789473684210525
+Percision score 0.23076923076923078
+Positive Score 0.23076923076923078
+Negative Score 0.8848920863309353
+END
+train_crawl_42B_300.npy
+8 58 5 81
+Accuracy score 0.5855263157894737
+F1 score 0.20253164556962025
+Recall score 0.12121212121212122
+Percision score 0.6153846153846154
+Positive Score 0.6153846153846154
+Negative Score 0.5827338129496403
+END
