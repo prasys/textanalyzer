@@ -1,0 +1,126 @@
+train_albert_base.npy
+45 48 67 125
+Accuracy score 0.5964912280701754
+F1 score 0.4390243902439025
+Recall score 0.4838709677419355
+Percision score 0.4017857142857143
+Positive Score 0.4017857142857143
+Negative Score 0.7225433526011561
+END
+train_albert_large.npy
+45 46 67 127
+Accuracy score 0.6035087719298246
+F1 score 0.4433497536945813
+Recall score 0.4945054945054945
+Percision score 0.4017857142857143
+Positive Score 0.4017857142857143
+Negative Score 0.7341040462427746
+END
+train_albert_xlarge.npy
+33 40 79 133
+Accuracy score 0.5824561403508772
+F1 score 0.3567567567567567
+Recall score 0.4520547945205479
+Percision score 0.29464285714285715
+Positive Score 0.29464285714285715
+Negative Score 0.7687861271676301
+END
+train_use_elm.npy
+40 56 72 117
+Accuracy score 0.5508771929824562
+F1 score 0.3846153846153846
+Recall score 0.4166666666666667
+Percision score 0.35714285714285715
+Positive Score 0.35714285714285715
+Negative Score 0.6763005780346821
+END
+train_use_transformer_large.npy
+36 39 76 134
+Accuracy score 0.5964912280701754
+F1 score 0.38502673796791453
+Recall score 0.48
+Percision score 0.32142857142857145
+Positive Score 0.32142857142857145
+Negative Score 0.7745664739884393
+END
+train_google_news_300.npy
+42 34 70 139
+Accuracy score 0.6350877192982456
+F1 score 0.44680851063829785
+Recall score 0.5526315789473685
+Percision score 0.375
+Positive Score 0.375
+Negative Score 0.8034682080924855
+END
+train_common_crawl_300.npy
+42 32 70 141
+Accuracy score 0.6421052631578947
+F1 score 0.45161290322580644
+Recall score 0.5675675675675675
+Percision score 0.375
+Positive Score 0.375
+Negative Score 0.815028901734104
+END
+train_wiki_300.npy
+35 46 77 127
+Accuracy score 0.5684210526315789
+F1 score 0.3626943005181347
+Recall score 0.43209876543209874
+Percision score 0.3125
+Positive Score 0.3125
+Negative Score 0.7341040462427746
+END
+train_bert_base_cased.npy
+42 47 70 126
+Accuracy score 0.5894736842105263
+F1 score 0.41791044776119396
+Recall score 0.47191011235955055
+Percision score 0.375
+Positive Score 0.375
+Negative Score 0.7283236994219653
+END
+train_bert_base_uncased.npy
+42 53 70 120
+Accuracy score 0.5684210526315789
+F1 score 0.40579710144927533
+Recall score 0.4421052631578947
+Percision score 0.375
+Positive Score 0.375
+Negative Score 0.6936416184971098
+END
+train_bert_large_cased.npy
+41 51 71 122
+Accuracy score 0.5719298245614035
+F1 score 0.4019607843137254
+Recall score 0.44565217391304346
+Percision score 0.36607142857142855
+Positive Score 0.36607142857142855
+Negative Score 0.7052023121387283
+END
+train_bert_large_uncased.npy
+44 45 68 128
+Accuracy score 0.6035087719298246
+F1 score 0.43781094527363185
+Recall score 0.4943820224719101
+Percision score 0.39285714285714285
+Positive Score 0.39285714285714285
+Negative Score 0.7398843930635838
+END
+train_twitter_200.npy
+32 47 80 126
+Accuracy score 0.5543859649122806
+F1 score 0.3350785340314136
+Recall score 0.4050632911392405
+Percision score 0.2857142857142857
+Positive Score 0.2857142857142857
+Negative Score 0.7283236994219653
+END
+train_crawl_42B_300.npy
+66 74 46 99
+Accuracy score 0.5789473684210527
+F1 score 0.5238095238095238
+Recall score 0.4714285714285714
+Percision score 0.5892857142857143
+Positive Score 0.5892857142857143
+Negative Score 0.5722543352601156
+END

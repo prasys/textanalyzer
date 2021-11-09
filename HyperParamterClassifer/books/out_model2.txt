@@ -1,0 +1,46 @@
+train_bert_large_cased.npy
+[(0.520000, SimpleClassificationPipeline({'balancing:strategy': 'weighting', 'categorical_encoding:__choice__': 'no_encoding', 'classifier:__choice__': 'libsvm_svc', 'imputation:strategy': 'most_frequent', 'preprocessor:__choice__': 'feature_agglomeration', 'rescaling:__choice__': 'robust_scaler', 'classifier:libsvm_svc:C': 4713.718826387347, 'classifier:libsvm_svc:gamma': 0.0006251424179729884, 'classifier:libsvm_svc:kernel': 'sigmoid', 'classifier:libsvm_svc:max_iter': -1, 'classifier:libsvm_svc:shrinking': 'False', 'classifier:libsvm_svc:tol': 0.02645022912181498, 'preprocessor:feature_agglomeration:affinity': 'cosine', 'preprocessor:feature_agglomeration:linkage': 'complete', 'preprocessor:feature_agglomeration:n_clusters': 158, 'preprocessor:feature_agglomeration:pooling_func': 'mean', 'rescaling:robust_scaler:q_max': 0.8881204510744747, 'rescaling:robust_scaler:q_min': 0.09786258037278663, 'classifier:libsvm_svc:coef0': -0.2236436970560962},
+dataset_properties={
+  'task': 1,
+  'sparse': False,
+  'multilabel': False,
+  'multiclass': False,
+  'target_type': 'classification',
+  'signed': False})),
+(0.480000, SimpleClassificationPipeline({'balancing:strategy': 'weighting', 'categorical_encoding:__choice__': 'one_hot_encoding', 'classifier:__choice__': 'libsvm_svc', 'imputation:strategy': 'mean', 'preprocessor:__choice__': 'feature_agglomeration', 'rescaling:__choice__': 'none', 'categorical_encoding:one_hot_encoding:use_minimum_fraction': 'False', 'classifier:libsvm_svc:C': 42.03774263151552, 'classifier:libsvm_svc:gamma': 0.5291167667667618, 'classifier:libsvm_svc:kernel': 'sigmoid', 'classifier:libsvm_svc:max_iter': -1, 'classifier:libsvm_svc:shrinking': 'True', 'classifier:libsvm_svc:tol': 0.0017690295537490935, 'preprocessor:feature_agglomeration:affinity': 'euclidean', 'preprocessor:feature_agglomeration:linkage': 'complete', 'preprocessor:feature_agglomeration:n_clusters': 122, 'preprocessor:feature_agglomeration:pooling_func': 'mean', 'classifier:libsvm_svc:coef0': 0.9345449460527822},
+dataset_properties={
+  'task': 1,
+  'sparse': False,
+  'multilabel': False,
+  'multiclass': False,
+  'target_type': 'classification',
+  'signed': False})),
+]
+END
+train_bert_large_uncased.npy
+[(0.520000, SimpleClassificationPipeline({'balancing:strategy': 'weighting', 'categorical_encoding:__choice__': 'one_hot_encoding', 'classifier:__choice__': 'adaboost', 'imputation:strategy': 'most_frequent', 'preprocessor:__choice__': 'feature_agglomeration', 'rescaling:__choice__': 'robust_scaler', 'categorical_encoding:one_hot_encoding:use_minimum_fraction': 'False', 'classifier:adaboost:algorithm': 'SAMME', 'classifier:adaboost:learning_rate': 0.35460746047710434, 'classifier:adaboost:max_depth': 5, 'classifier:adaboost:n_estimators': 274, 'preprocessor:feature_agglomeration:affinity': 'euclidean', 'preprocessor:feature_agglomeration:linkage': 'average', 'preprocessor:feature_agglomeration:n_clusters': 400, 'preprocessor:feature_agglomeration:pooling_func': 'max', 'rescaling:robust_scaler:q_max': 0.9937892535940933, 'rescaling:robust_scaler:q_min': 0.06383414174735035},
+dataset_properties={
+  'task': 1,
+  'sparse': False,
+  'multilabel': False,
+  'multiclass': False,
+  'target_type': 'classification',
+  'signed': False})),
+(0.480000, SimpleClassificationPipeline({'balancing:strategy': 'weighting', 'categorical_encoding:__choice__': 'one_hot_encoding', 'classifier:__choice__': 'adaboost', 'imputation:strategy': 'median', 'preprocessor:__choice__': 'feature_agglomeration', 'rescaling:__choice__': 'robust_scaler', 'categorical_encoding:one_hot_encoding:use_minimum_fraction': 'False', 'classifier:adaboost:algorithm': 'SAMME', 'classifier:adaboost:learning_rate': 0.2509056332208501, 'classifier:adaboost:max_depth': 3, 'classifier:adaboost:n_estimators': 438, 'preprocessor:feature_agglomeration:affinity': 'euclidean', 'preprocessor:feature_agglomeration:linkage': 'average', 'preprocessor:feature_agglomeration:n_clusters': 114, 'preprocessor:feature_agglomeration:pooling_func': 'mean', 'rescaling:robust_scaler:q_max': 0.959671102221687, 'rescaling:robust_scaler:q_min': 0.06259479931891644},
+dataset_properties={
+  'task': 1,
+  'sparse': False,
+  'multilabel': False,
+  'multiclass': False,
+  'target_type': 'classification',
+  'signed': False})),
+]
+END
+train_twitter_200.npy
+[(1.000000, MyDummyClassifier(configuration=1, init_params=None, random_state=None)),
+]
+END
+train_crawl_42B_300.npy
+[(1.000000, MyDummyClassifier(configuration=1, init_params=None, random_state=None)),
+]
+END
